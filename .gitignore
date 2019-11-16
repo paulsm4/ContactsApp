@@ -3,22 +3,22 @@
 #
 
 # MSVS Project artifacts
-/build/
+build/
 **/build*.txt
-/[Rr]elease/
-/[Bb]in/
-/[Oo]bj/
-/[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
 **/*.suo
 **/*.tmp
 
 # Eclipse artifacts
-/.metadata/
-/.settings/
-/bin/
-/build/
-/temp/
-/tmp/
+.metadata/
+.settings/
+bin/
+build/
+temp/
+tmp/
 **/*.class
 **/*.tmp
 **/*.bak
@@ -27,14 +27,14 @@
 **/*.war
 
 # VSCode
-/.vscode/
+.vscode/
 
 # Node/Angular:
-/node_modules/
-/dist/
-/out-tsc/
-/npm_logs/
-/.sass-cache/
+node_modules/
+dist/
+out-tsc/
+npm_logs/
+.sass-cache/
 
 # System Files
 **/.DS_Store
