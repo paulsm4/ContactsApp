@@ -27,12 +27,21 @@ namespace ContactsApp.Models
             Note note = new Note();
             note.Text = "An example note...";
             notes.Add(note);
+            note = new Note();
             note.Text = "Another example note...";
             notes.Add(note);
             contact.Notes = notes;
 
             // Add to DB
             context.Contacts.Add(contact);
+
+            // Now create a contact with no notes
+            contact = new Contact();
+            contact.Name = "no notes";
+            contact.EMail = "no_notes.com";
+            context.Contacts.Add(contact);
+
+            // Seed the database
             base.Seed(context);
         }
     }

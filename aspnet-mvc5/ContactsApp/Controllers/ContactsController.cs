@@ -116,6 +116,70 @@ namespace ContactsApp.Controllers
             return RedirectToAction("Index");
         }
 
+        // GET: Contacts/EditNote?noteId=3
+        public ActionResult EditNote(int? noteId)
+        {
+            if (noteId == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Note note = db.Notes.FirstOrDefault(n => n.NoteId == noteId);
+            if (note == null)
+            {
+                return HttpNotFound();
+            }
+            return View(note);
+        }
+
+        // POST: Contacts/EditNote?noteId=3
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditNote([Bind(Include = "NoteId,Name,Text,Date")] Note note)
+        {
+            if (ModelState.IsValid)
+            {
+                //// This crashes with:[SqlException (0x80131904): 
+                //// The UPDATE statement conflicted with the FOREIGN KEY constraint "FK_dbo.Notes_dbo.Contacts_ContactId"
+                //db.Entry(note).State = EntityState.Modified;
+                //await db.SaveChangesAsync();
+                //return RedirectToAction("Index");
+                Note note2 = db.Notes.FirstOrDefault(n => n.NoteId == note.NoteId);
+                note2.Text = note.Text;
+                note2.Date = note.Date;
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(note);
+        }
+
+        // GET: Contacts/DeleteNote?noteId=3
+        public ActionResult DeleteNote(int? noteId)
+        {
+            if (noteId == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Note note = db.Notes.FirstOrDefault(n => n.NoteId == noteId);
+            if (note == null)
+            {
+                return HttpNotFound();
+            }
+            return View(note);
+        }
+
+        // POST: Contacts/DeleteNoteConfirmed/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteNoteConfirmed(int noteId)
+        {
+            Note note = db.Notes.Find(noteId);
+            db.Notes.Remove(note);
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

@@ -21,6 +21,6 @@ namespace ContactsApp.Models
         public string City { get; set; }
         public string State { get; set; }
         public string Zip { get; set; }
-        public virtual ICollection<Note> Notes { get; set; }
+        public virtual List<Note> Notes { get; set; }
     }
 }

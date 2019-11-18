@@ -83,8 +83,31 @@
         </dd>
 
     </dl>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.ContactId }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.ContactId }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+<div id="contact_notes">
+    <h4>Notes</h4>
+    <table class="table">
+        <tr>
+            <th>Date</th>
+            <th>Note</th>
+            <th>&nbsp;</th>
+        </tr>
+
+        @for (int i = 0; i < Model.Notes.Count(); i++)
+        {
+            <tr>
+                <td>@Html.DisplayFor(model => model.Notes[i].Date)</td>
+                <td>@Html.DisplayFor(model => model.Notes[i].Text)</td>
+                <td>
+                    @Html.ActionLink("Edit Note", "EditNote", new { noteId = Model.Notes[i].NoteId }) |
+                    @Html.ActionLink("Delete Note", "DeleteNote", new { noteId = Model.Notes[i].NoteId })
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+

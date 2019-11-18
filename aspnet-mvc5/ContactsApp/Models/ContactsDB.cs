@@ -19,6 +19,14 @@ namespace ContactsApp.Models
         {
         }
 
-        public System.Data.Entity.DbSet<ContactsApp.Models.Contact> Contacts { get; set; }
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{ 
+        //    modelBuilder.Entity<Note>()
+        //        .Property(namespace -> n.Date)
+        //        .HasDefaultValueSql("GETDATE()");
+        //}
+
+    public System.Data.Entity.DbSet<ContactsApp.Models.Contact> Contacts { get; set; }
+        public System.Data.Entity.DbSet<ContactsApp.Models.Note> Notes { get; set; }
     }
 }
