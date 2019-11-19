@@ -26,7 +26,7 @@ namespace ContactsApp.Models
         //        .HasDefaultValueSql("GETDATE()");
         //}
 
-    public System.Data.Entity.DbSet<ContactsApp.Models.Contact> Contacts { get; set; }
+		public System.Data.Entity.DbSet<ContactsApp.Models.Contact> Contacts { get; set; }
         public System.Data.Entity.DbSet<ContactsApp.Models.Note> Notes { get; set; }
     }
 }

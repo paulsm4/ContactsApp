@@ -24,3 +24,8 @@
     - Search screen
     - Edit Details screen
     - Edit Notes screen
+
+* Branch: aspnet-mvc5
+
+* Branch: dotnetcore-angular
+
