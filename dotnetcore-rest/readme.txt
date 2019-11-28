@@ -1,4 +1,5 @@
 * Create ASP.NET Core REST API:
+
 1. Create project:
    - MSVS > Create project > 
       Language= C#, Template= ASP.Net Core Web Application >
@@ -145,4 +146,125 @@ public async Task<ActionResult<Contact>> DeleteNote(int noteId)
      <= Success ... but only found "ContactTests" (not "NoteTests")
      <= SOLUTION: Needed to make "class NoteTests" *public*!!!
 
+   - Add > Unit Test > IntegrationTests
+     <= Let's focus on this for now...
+
+   - Postman:
+     - GET  http://localhost:53561/api/Contacts
+       - Response: HTTP 200 (OK)
+          []
+
+     - POST http://localhost:53561/api/Contacts
+         {
+	       "Name":"Sy Snoodle",
+	       "EMail":"ss@abc.com"
+         }
+       - Response: HTTP 201 (Created)
+         {
+             "contactId": 1,
+             "name": "Sy Snoodle",
+             "eMail": "ss@abc.com",
+             "phone1": null,
+             "phone2": null,
+             "address1": null,
+             "address2": null,
+             "city": null,
+             "state": null,
+             "zip": null,
+             "notes": null
+         }
+
+     - GET  http://localhost:53561/api/Contacts
+       - Response: HTTP 200 (OK)
+         [
+             {
+               "contactId": 1,"name": "Sy Snoodle","eMail": "ss@abc.com","phone1": null,"phone2": null,
+               "address1": null,"address2": null,"city": null,"state": null,"zip": null,"notes": null
+             }
+         ]
+
+     - PUT http://localhost:53561/api/Contacts/1  // BAD
+        { "Name":"Salacious Crumb" }
+        <= Values passed to ContactsController.PutContract():
+           id= 1 (OK), contact= {0, "Salacious Crumb", null, null, ...} > (id != contact.ContactId > return BadRequest()
+       - Response: HTTP 400 (Bad Request)
+         {
+             "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+             "title": "Bad Request",
+             "status": 400,
+             "traceId": "|313754e1-456144caa750fef9."
+         }
+
+     - PUT http://localhost:53561/api/Contacts/1  // OK
+        { "contactId": 1, "Name":"Salacious Crumb" }
+       - Response: HTTP 204 (No Content)
+
+6. Extended "GetContacts()" controller endpoint to allow for "Get by Name":
+   - ContactsController.cs:
+       [HttpGet]
+        public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
+        {
+            var queryParams = HttpContext.Request.Query;
+            if (queryParams.Count == 0)
+            {
+                return await _context.Contacts.ToListAsync();
+            }
+            var param = queryParams.First();
+            if ("name" == param.Key)
+            {
+                string targetName = "%" + param.Value + "%";
+                var query = from c in _context.Contacts
+                            where EF.Functions.Like(c.Name, targetName)
+                            select c;
+                return query.ToList();
+            }
+            return BadRequest();
+        }
+    
+    - PostMan:
+      - GET  http://localhost:53561/api/Contacts
+         - Response: HTTP 200 (OK), JSON= []
+      - POST http://localhost:53561/api/Contacts
+         { "Name":"Sy Snoodle", "EMail":"ss@abc.com" }
+         - Response: HTTP 201 (Created), JSON= { "contactId": 1,"name":"Sy Snoodle", ...}
+      - GET  http://localhost:53561/api/Contacts/?name=Snood
+         <= Works perfectly!
+        - Response: HTTP 200 (OK), JSON= { "contactId": 1,"name":"Sy Snoodle", ...}
+
+7. Reconfigure project for persistent LocalDB (vs. transient in-memory DB):
+   - Startup.cs:
+       public void ConfigureServices(IServiceCollection services) {
+           services.AddDbContext<ContactsContext>(opt => opt.UseInMemoryDatabase(databaseName: "ContactsDB"));
+           ...
+       <= Change this!
+
+     - appsettings.json:
+         ...
+         "ConnectionStrings": {
+           "ContactsDB": "Server=(localdb)\\mssqllocaldb;Database=ContactsDB;Trusted_Connection=True;MultipleActiveResultSets=true"
+         }
+
+   - Startup.cs:
+       public void ConfigureServices(IServiceCollection services) {
+         services.AddDbContext<ContactsContext>(opt => 
+           opt.UseSqlServer(Configuration.GetConnectionString("ContactsDB")));
+
+   - Nuget > PM Console >
+https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/migrations?view=aspnetcore-3.0
+     - Add-Migration InitialCreate -Verbose 
+        <= Auto-generates "Migrations\20191128012707_InityialCreate.cs", with Up() and Down() methods
+           Creates/drops Contacts and Notes tables...
+ 
+     - Update-Database -Verbose
+       <= Database created %USERPROFILE%\ContactsDB.mdf
+
+     - Ran Postman tests
+       <= Verified data now persisted between sessions...
+
+  
+
+
+ 
+       
+ 
        

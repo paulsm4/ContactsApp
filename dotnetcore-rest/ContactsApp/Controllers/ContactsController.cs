@@ -18,11 +18,32 @@ namespace ContactsApp.Controllers
             _context = context;
         }
 
-        // GET: api/Contacts
+        /*
+         * GET: api/Contacts
+         *
+         * NOTE: extended the auto-generated code to accomodate "Get by Name"
+         * EXAMPLES:
+         * 1) GET  http://localhost:53561/api/Contacts  // Returns all contacts, including "Sy Snootles"
+         * 2) GET  http://localhost:53561/api/Contacts/?name=Snoot  // Returns all names like "%Snoot%"
+         */
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
         {
-            return await _context.Contacts.ToListAsync();
+            var queryParams = HttpContext.Request.Query;
+            if (queryParams.Count == 0)
+            {
+                return await _context.Contacts.ToListAsync();
+            }
+            var param = queryParams.First();
+            if ("name" == param.Key)
+            {
+                string targetName = "%" + param.Value + "%";
+                var query = from c in _context.Contacts
+                            where EF.Functions.Like(c.Name, targetName)
+                            select c;
+                return query.ToList();
+            }
+            return BadRequest();
         }
 
         // GET: api/Contacts/5
