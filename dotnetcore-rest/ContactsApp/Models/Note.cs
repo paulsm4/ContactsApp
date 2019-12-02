@@ -17,7 +17,7 @@ namespace ContactsApp.Models
         public DateTime Date { get; set; }
         [ForeignKey("Contact")]
         public int ContactId { get; set; }
-        public virtual Contact Contact { get; set; }
+        //public Contact Contact { get; set; }  // Causes circular reference, Controller's "CreatedAtAction()"
     }
 
 }

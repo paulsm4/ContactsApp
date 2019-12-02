@@ -18,6 +18,7 @@ namespace ContactsApp.Models
         public string City { get; set; }
         public string State { get; set; }
         public string Zip { get; set; }
-        public virtual List<Note> Notes { get; set; }
+        //public List<Note> Notes { get; set; }  // POST new Contact + Notes OK, but fails otherwise
+        public virtual ICollection<Note> Notes { get; set; }
     }
 }

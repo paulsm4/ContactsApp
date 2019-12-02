@@ -1,4 +1,5 @@
-* Create ASP.NET Core REST API:
+* Create ASP.NET Core REST API
+  ----------------------------
 
 1. Create project:
    - MSVS > Create project > 
@@ -225,11 +226,11 @@ public async Task<ActionResult<Contact>> DeleteNote(int noteId)
       - GET  http://localhost:53561/api/Contacts
          - Response: HTTP 200 (OK), JSON= []
       - POST http://localhost:53561/api/Contacts
-         { "Name":"Sy Snoodle", "EMail":"ss@abc.com" }
-         - Response: HTTP 201 (Created), JSON= { "contactId": 1,"name":"Sy Snoodle", ...}
+         { "Name":"Sy Snootle", "EMail":"ss@abc.com" }
+         - Response: HTTP 201 (Created), JSON= { "contactId": 1,"name":"Sy Snootle", ...}
       - GET  http://localhost:53561/api/Contacts/?name=Snood
          <= Works perfectly!
-        - Response: HTTP 200 (OK), JSON= { "contactId": 1,"name":"Sy Snoodle", ...}
+        - Response: HTTP 200 (OK), JSON= { "contactId": 1,"name":"Sy Snootle", ...}
 
 7. Reconfigure project for persistent LocalDB (vs. transient in-memory DB):
    - Startup.cs:
@@ -261,10 +262,54 @@ https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/migrations?view=aspnetc
      - Ran Postman tests
        <= Verified data now persisted between sessions...
 
-  
+8. Integration tests (continued from Step 5 above):
+   - run.bat:
+       @rem Allows pre-starting ContactsApp REST service before running MSTest suite
+	   cd bin\Debug\netcoreapp3.0
+       start /B /WAIT ContactsApp.exe
+	   
+   - MSVS > Tools > Add Tool >
+       Title= Run REST Service, Cmd= run.bat
+   ----------------------------------------------------------------------------
+   - PROBLEM: 
+       Add/List/Update/Delete "Contacts" works OK...
+       ... but unable to add or update any "notes" as part of adding/updating a "contact"
+       <= Added EFSaving 
 
+   - SOLUTION: Remove "cicular reference" from Note.cs:
+       public class Note {
+           public Note(){
+               this.Date = DateTime.Now; // Default value: local "now"
+           }
+           [Key]
+           [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+           public int NoteId { get; set; }
+           public string Text { get; set; }
+           public DateTime Date { get; set; }
+           [ForeignKey("Contact")]
+           public int ContactId { get; set; }
+           //public Contact Contact { get; set; }  // <-- Removed this!
+           <= Not sure why we needed it in the first place ... 
+		      ... but it worked OK in ASP.Net/MVC, and we just carried it forward.
 
- 
-       
- 
-       
+     <<See "nested-data.txt" for further details>>
+   ----------------------------------------------------------------------------
+  - public class IntegrationTests
+        public  void TestContacts ()
+            // Query for all existing test records: GET  http://localhost:5000/api/Contacts
+               <= OK
+            // Ensure Test Record does not exist
+               <= PurgeTestContacts(): OK
+                  "Test-Contact" record(s) and all corresponding Notes records DELETED
+            // CREATE: Create new contact: POST  http://localhost:5000/api/Contacts
+               <= OK
+            // READ: verify contact created: GET  http://localhost:5000/api/Contacts/1
+               <= OK
+            // UPDATE: Change a field, Add some notes: PUT http://localhost:5000/api/Contacts/1
+               <= OK: "Phone2" set correctly, two new fields added
+            // DELETE Contact http://localhost:5000/api/Contacts/8
+                <= OK
+            // Re-read record (verify "delete")
+                <= OK
+    << All integration tests now passing >>
+    - Updated Git...

@@ -50,7 +50,11 @@ namespace ContactsApp.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Contact>> GetContact(int id)
         {
-            var contact = await _context.Contacts.FindAsync(id);
+            // var contact = await _context.Contacts.FindAsync(id);   Lazy-loading: fails to include related "Notes"
+            var contact = await _context.Contacts
+                .Include(c => c.Notes)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.ContactId == id);
 
             if (contact == null)
             {
@@ -71,8 +75,44 @@ namespace ContactsApp.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(contact).State = EntityState.Modified;
+            // Fetch entity as it exists in the DB...
+            var contactToUpdate =  _context.Contacts
+                .Include(c => c.Notes)
+                .FirstOrDefault(c => c.ContactId == id);
 
+            // Update properties of the parent
+            _context.Entry(contactToUpdate).CurrentValues.SetValues(contact);
+
+            // Remove or update child collection items
+            List<Note> contactNotesClone = new List<Note>();
+            foreach (Note n in contactToUpdate.Notes)
+                contactNotesClone.Add(n);
+            foreach (var contactNote in contactNotesClone)
+            {
+                // ... Fetch corresponding note from "contact" update
+                var note = contact.Notes.SingleOrDefault(n => n.NoteId == contactNote.NoteId);
+                if (note != null)
+                {
+                    // .. Present in "contact" update: write the updated "note" value to DB
+                    _context.Entry(contactNote).CurrentValues.SetValues(note);
+                } else
+                {
+                    // .. Not present in "contact" update: delete this note from DB
+                    _context.Remove(contactNote);
+                }
+            }
+
+            // Add the new items
+            foreach (var note in contact.Notes)
+            {
+                if (contactNotesClone.All(n => n.NoteId != note.NoteId))
+                {
+                    // .. Not present in DB: add as a new "note"
+                    contactToUpdate.Notes.Add(note);
+                }
+            }
+
+            // OK: Refresh the database
             try
             {
                 await _context.SaveChangesAsync();
@@ -90,6 +130,25 @@ namespace ContactsApp.Controllers
             }
 
             return NoContent();
+        }
+
+        private void UpdateNotes (List<Note> notes, Contact contactToUpdate)
+        {
+            HashSet<int>currentNotes = new HashSet<int>(
+                (contactToUpdate.Notes.Select(n => n.NoteId)));
+            contactToUpdate.Notes = new List<Note>();
+            foreach (var note in notes)
+            {
+                if (!currentNotes.Contains(note.NoteId))
+                {
+                    contactToUpdate.Notes.Add(note);
+                } else
+                {
+                    _context.Notes.Update(note);
+                }
+            }
+
+
         }
 
         // POST: api/Contacts
