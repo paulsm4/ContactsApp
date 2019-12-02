@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
 
-namespace ContactsApp.Models
+namespace MinimalEF.Models
 {
     public class Contact
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ContactId { get; set; }
+        public int ID { get; set; }
         public string Name { get; set; }
         public string EMail { get; set; }
         public string Phone1 { get; set; }
@@ -19,5 +20,11 @@ namespace ContactsApp.Models
         public string State { get; set; }
         public string Zip { get; set; }
         public virtual ICollection<Note> Notes { get; set; }
+
+        public override string ToString ()
+        {
+            string jsonText = JsonConvert.SerializeObject(this);
+            return jsonText;
+        }
     }
 }

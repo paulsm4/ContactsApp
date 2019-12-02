@@ -1,6 +1,5 @@
 * Create ASP.NET Core REST API
   ----------------------------
-
 1. Create project:
    - MSVS > Create project > 
       Language= C#, Template= ASP.Net Core Web Application >
@@ -26,14 +25,15 @@
         public string City { get; set; }
         public string State { get; set; }
         public string Zip { get; set; }
-        public virtual List<Note> Notes { get; set; }
+        public virtual ICollection<Note> Notes { get; set; }
     }
     ...
 
    - Note.cs:
-public class Note
+    public class Note
     {
         public Note()
+        {
         {
             this.Date = DateTime.Now; // Default value: local "now"
         }
@@ -44,25 +44,36 @@ public class Note
         public DateTime Date { get; set; }
         [ForeignKey("Contact")]
         public int ContactId { get; set; }
-        public virtual Contact Contact { get; set; }
-    }
 
 3. Add EF DBContext and MVC  Controller:
-       New Controller > API Controller with actions, using EF > 
+   - MSVS > New Controller > API Controller with actions, using EF > 
          Model class > Contact, 
          Data context class > (+) > ContactsApp.Models.ContactsContext,
          Controller name= ContactsController
+
    - The MSVS "New Controller" template auto-generates:
      - Controllers\ContactsController.cs
        <= async Task<ActionResult> methods for all CRUD operations: GET, PUT (update), POST (add), DELETE
           "ContactsContext context" DI via ContactsController() constructor
-     - Models\ContactsContext.cs
+
+   - Models\ContactsContext.cs:
+    public class ContactsContext : DbContext
+    {
+        public ContactsContext(DbContextOptions<ContactsContext> options) : base(options)
+        {
+        }
+        public DbSet<ContactsApp.Models.Contact> Contacts { get; set; }
+        public DbSet<ContactsApp.Models.Note> Notes { get; set; }
+        <= Manually exposed *both* "Contact" (main table) and "Notes" ("related data")
 
    - Default controller actions:
 [Route("api/[controller]")]
 [ApiController]
 public class ContactsController : ControllerBase
-
+    private readonly ContactsContext _context;
+    public ContactsController(ContactsContext context) {
+        _context = context;
+        ...
 [HttpGet]             // List all
 public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
 [HttpGet("{id}")]     // Get one
@@ -83,17 +94,10 @@ public async Task<ActionResult<Contact>> PostNote(Note note)
 [HttpDelete("/Notes/{id}")]
 public async Task<ActionResult<Contact>> DeleteNote(int noteId)
 
-   - Manually added "Notes" to Models\ContactsContext.cs for this to work:
-    public class ContactsContext : DbContext {
-        public ContactsContext(DbContextOptions<ContactsContext> options) : base(options) {}
-
-        public DbSet<ContactsApp.Models.Contact> Contacts { get; set; }
-        public DbSet<ContactsApp.Models.Note> Notes { get; set; }
-    }
     <<  Verified everything compiles cleanly at this point  >>
            
 4. Deleted MSVS auto-generated "WeatherForecast" scaffolding:
-   - { WeatherForecastController.cs, WeatherForecat.cs }
+   - { WeatherForecastController.cs, WeatherForecast.cs }
    
    - Properties\launchSettings.json:
 {
@@ -157,13 +161,13 @@ public async Task<ActionResult<Contact>> DeleteNote(int noteId)
 
      - POST http://localhost:53561/api/Contacts
          {
-	       "Name":"Sy Snoodle",
+	       "Name":"Sy Snootles",
 	       "EMail":"ss@abc.com"
          }
        - Response: HTTP 201 (Created)
          {
              "contactId": 1,
-             "name": "Sy Snoodle",
+             "name": "Sy Snootlea",
              "eMail": "ss@abc.com",
              "phone1": null,
              "phone2": null,
@@ -179,7 +183,7 @@ public async Task<ActionResult<Contact>> DeleteNote(int noteId)
        - Response: HTTP 200 (OK)
          [
              {
-               "contactId": 1,"name": "Sy Snoodle","eMail": "ss@abc.com","phone1": null,"phone2": null,
+               "contactId": 1,"name": "Sy Snootlea","eMail": "ss@abc.com","phone1": null,"phone2": null,
                "address1": null,"address2": null,"city": null,"state": null,"zip": null,"notes": null
              }
          ]
@@ -313,3 +317,186 @@ https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/migrations?view=aspnetc
                 <= OK
     << All integration tests now passing >>
     - Updated Git...
+
+===================================================================================================
+
+* Current subprojects:
+  - ContactsApp:  .Net Core REST service
+  - ContactsApiTests: MSTest unit/integration tests
+  - EFSaving: EF Core/Related data example
+      https://docs.microsoft.com/en-us/ef/core/saving/related-data
+  - ContosoUniversity: EF Core tutorials:
+      https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/?view=aspnetcore-3.0
+
+* Added "MinimalEF" subproject
+  - MSVS > Add New > Project > Console App >
+      Name= MinimalEF
+
+  - Add > Class >
+      Models\{Contact.cs, Note.cs, ContactsContext2.cs}
+
+  - Models\Contact.cs:
+   public class Contact
+    {
+        public string Name { get; set; }
+        public string EMail { get; set; }
+        public string Phone1 { get; set; }
+        public string Phone2 { get; set; }
+        public string Address1 { get; set; }
+        public string Address2 { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string Zip { get; set; }
+        public virtual ICollection<Note> Notes { get; set; }
+    }
+
+  - Models\Note.cs:
+    public class Note
+    {
+        public Note()
+        {
+            this.Date = DateTime.Now; // Default value: local "now"
+        }
+        public string Text { get; set; }
+        public DateTime Date { get; set; }
+        public int ContactId { get; set; }
+    }
+
+  - Models\ContactsContext2.cs:
+    class ContactsContext2 : DbContext {
+        //// This constructor allows .Net Core runtume to inject DBContext options
+        //public ContactsContext2(DbContextOptions<ContactsContext2> options) : base(options) { ; }
+
+        // For standalone (console) app, we'll set options by overriding OnConfiguring()
+        public ContactsContext2() { ; }
+
+        public DbSet<MinimalEF.Models.Contact> Contacts { get; set; }
+        public DbSet<MinimalEF.Models.Note> Notes { get; set; }
+
+        // For standalone app, we'll hard-code connection string here, vs. reading from application.json
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+             optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=ContactsDB2;Trusted_Connection=True");
+            ...
+
+  - Nuget > Install MicrosoftEntityFrameworkCore
+    <= NOTE: *ALSO* needed to manually install Microsoft.EntityFrameworkCore.SqlServer for LocalDB to work...
+
+  - Add Contacts2.cs:
+    <= Wraps functionality
+    - Contacts2.cs:
+    public class Contacts2 {
+        private ContactsContext2 _context;
+        public Contacts2 () {
+            using (_context = new ContactsContext2()) {
+                _context.Database.EnsureCreated();
+            ... <= No-args constructor, call "EnsureCreated()", depends on "OnConfiguring()" in DBContext
+
+    - FIRST PROBLEM:
+      Error	CS1061	'DbSet<Contact>' does not contain a definition for 'ToList'...
+      SOLUTION: add "using System.Linq;"
+
+  - Update Program.cs:
+    class Program {
+        static void Main(string[] args) {
+            Contacts2 contacts2 = new Contacts2();
+            var contacts = contacts2.GetAllContacts();
+            ...
+
+  - Set bkpts in Program/Main, Contacts2, ContactsContext2 >
+      MSVS > Debug >
+
+    - NEXT PROBLEM:
+      System.InvalidOperationException: The entity type 'Contact' requires a primary key to be defined.
+      If you intended to use a keyless entity type call 'HasNoKey()'
+      <= OK: So "MinimalEF" needs to be just a little less "minimal"...
+
+    - Updated Contact.cs:
+    public class Contact {
+        [Key]
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string EMail { get; set; }
+        public string Phone1 { get; set; }
+        public string Phone2 { get; set; }
+        public string Address1 { get; set; }
+        public string Address2 { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string Zip { get; set; }
+        public virtual ICollection<Note> Notes { get; set; }
+        <= "ID" automagically recognized as Primary key; DB generation creates an MSSQL clustered index on it...
+
+    - Updated Note.cs:
+    public class Note {
+        [Key]
+        public int ID { get; set; }
+        public Note()
+        {
+            this.Date = DateTime.Now; // Default value: local "now"
+        }
+        public string Text { get; set; }
+        public DateTime Date { get; set; }
+        public int ContactID { get; set; }
+        <= Note "ID" also automagically recognized as Primary key...
+           "ContactID automagically recognized as a Foreign Key (no extra annotations required)
+
+    - NOTE:
+      - By wrapping _context in "using" (open/close) for each operation...
+        ... OntactsContext2.OnConfiguring() also gets called over and over again for each operation...
+
+  - Updated Contacts2.cs; added Get Contact Details:
+        public Contact GetContact(int id) {
+            Contact contact = null;
+            using (_context = new ContactsContext2()) {
+                contact =
+                    _context.Contacts.Include(c => c.Notes).First(c => c.ID == id);
+            }
+            return contact;
+
+    - NEXT PROBLEM:
+      Error CS1061: 'DbSet<Contact>' does not contain a definition for 'Include'...
+      SOLUTION: need all of the following assemblies:
+using Microsoft.EntityFrameworkCore;
+using MinimalEF.Models;
+using System.Collections.Generic;
+using System.Linq;
+      <= OK
+
+  - Contact.cs; print contact:
+    public class Contact {
+        ...
+        public override string ToString () {
+            string jsonText = JsonConvert.SerializeObject(this);
+            return jsonText;
+            ...
+
+  - Contacts2.cs; add new contact:
+        public int AddContact(Contact contact) {
+            using (_context = new ContactsContext2()) {
+                _context.Contacts.Add(contact);
+                _context.SaveChanges();
+                var c = _context.Entry(contact);
+                return c.Entity.ID;
+                ...
+
+  - Contacts2.cs: update contact:
+        public void UpdateContact(Contact contact) {
+            using (_context = new ContactsContext2()) {
+                // Fetch current version in DB
+                var contactToUpdate =
+                    _context.Contacts.Include(c => c.Notes).First(c => c.ID == contact.ID);
+
+                // Update properties of the parent
+                _context.Entry(contactToUpdate).CurrentValues.SetValues(contact);
+                ...
+                << "Update Contact record": So far, so good. But "Update Notes Records" leaves a bit to be desired... >>
+                _context.SaveChanges();
+                ...
+
+  - Contacts2.cs: delete contact:
+        public void DeleteContact(int id) {
+            using (_context = new ContactsContext2()) {
+                var contact =
+                    _context.Contacts.Include(c => c.Notes).First(c => c.ID == id);
+                _context.Contacts.Remove(contact);
+

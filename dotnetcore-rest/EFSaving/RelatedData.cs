@@ -2,7 +2,8 @@
  * Entity Framework and "Nested Data"
  * 
  * REFERENCES:
-EFS
+ *   https://docs.microsoft.com/en-us/ef/core/saving/related-data
+ *   https://github.com/aspnet/EntityFramework.Docs/tree/master/samples/core/Saving/RelatedData/
  */
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;

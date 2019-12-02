@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * Contoso University: ASP.NET Core MVC with EF Core - tutorial
+ *
+ * REFERENCE:
+ *   https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/?view=aspnetcore-3.0
+ */
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

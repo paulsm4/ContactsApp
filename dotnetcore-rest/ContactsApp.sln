@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFSaving", "EFSaving\EFSavi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContosoUniversity", "ContosoUniversity\ContosoUniversity.csproj", "{D1B39862-8498-4E73-980A-B74C89F46C13}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalEF", "MinimalEF\MinimalEF.csproj", "{4113A0B8-1AF8-461C-8A63-8282F123AAEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{D1B39862-8498-4E73-980A-B74C89F46C13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1B39862-8498-4E73-980A-B74C89F46C13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1B39862-8498-4E73-980A-B74C89F46C13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4113A0B8-1AF8-461C-8A63-8282F123AAEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4113A0B8-1AF8-461C-8A63-8282F123AAEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4113A0B8-1AF8-461C-8A63-8282F123AAEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4113A0B8-1AF8-461C-8A63-8282F123AAEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
