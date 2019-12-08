@@ -18,8 +18,42 @@ export class ContactsService {
       'Content-Type': 'application/json; charset=utf-8'
     })
   };
+
   constructor(private http: HttpClient) {
-      this.myAppUrl = environment.appUrl;
-      this.myApiUrl = 'api/Contacts/';
+    //debugger;
+    this.myAppUrl = environment.appUrl;
+    this.myApiUrl = 'api/Contacts/';
   }
+
+  getContacts(): Observable<Contact[]> {
+    const url = this.myAppUrl + this.myApiUrl;
+    console.log('ContactsService.getContacts(url=' + url + ')...');
+    return this.http.get<Contact[]>(url)
+    .pipe(
+      retry(1),
+      catchError(this.errorHandler)
+    );
+  }
+
+  getContact(contactId: number): Observable<Contact> {
+      return this.http.get<Contact>(this.myAppUrl + this.myApiUrl +contactId)
+      .pipe(
+        retry(1),
+        catchError(this.errorHandler)
+      );
+  }
+
+  errorHandler(error) {
+    let errorMessage = '';
+    if (error.error instanceof ErrorEvent) {
+      // Get client-side error
+      errorMessage = error.error.message;
+    } else {
+      // Get server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    console.error(errorMessage);
+    return throwError(errorMessage);
+  }
+
 }

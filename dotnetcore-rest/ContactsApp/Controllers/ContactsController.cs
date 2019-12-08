@@ -7,6 +7,7 @@ using ContactsApp.Models;
 
 namespace ContactsApp.Controllers
 {
+    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class ContactsController : ControllerBase

@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  appUrl: 'http://localhost:53561/' // MSVS 2019/IIS Express
+  appUrl: 'http://localhost:53561/' // MSVS 2019/IIS Express;
 };
 
 /*
