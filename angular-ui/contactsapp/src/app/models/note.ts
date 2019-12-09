@@ -1,6 +1,6 @@
 export class Note {
-  NoteId?: number;
-  Text: string;
-  Date: Date;
-  ContactId?: number;
+  noteId?: number;
+  text: string;
+  date: Date;
+  contactId?: number;
 }

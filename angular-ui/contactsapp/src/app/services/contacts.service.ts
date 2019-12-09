@@ -26,7 +26,12 @@ export class ContactsService {
   }
 
   getContacts(): Observable<Contact[]> {
-    const url = this.myAppUrl + this.myApiUrl;
+    //const url = this.myAppUrl + this.myApiUrl;
+    //const url = 'http://localhost:52774/api/Contacts/';  // CORS Error
+    //const url = 'https://localhost:44333/api/Contacts/';
+    //const url = 'https://localhost:53561/api/Contacts/';  // net::ERR_SSL_PROTOCOL_ERROR
+    const url = 'https://localhost:44362/api/Contacts/';  // net::ERR_CONNECTION_REFUSED
+
     console.log('ContactsService.getContacts(url=' + url + ')...');
     return this.http.get<Contact[]>(url)
     .pipe(

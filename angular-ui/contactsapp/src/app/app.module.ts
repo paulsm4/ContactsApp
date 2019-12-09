@@ -9,6 +9,7 @@ import { AddContactComponent } from './contacts/add-contact/add-contact.componen
 import { UpdateContactComponent } from './contacts/update-contact/update-contact.component';
 import { ListContactsComponent } from './contacts/list-contacts/list-contacts.component';
 import { AddNoteComponent } from './contacts/add-note/add-note.component';
+import { TestAPIComponent } from './test-api/test-api.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { AddNoteComponent } from './contacts/add-note/add-note.component';
     AddContactComponent,
     UpdateContactComponent,
     ListContactsComponent,
-    AddNoteComponent
+    AddNoteComponent,
+    TestAPIComponent
   ],
   imports: [
     BrowserModule,

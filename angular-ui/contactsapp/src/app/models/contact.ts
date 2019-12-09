@@ -1,12 +1,12 @@
 export class Contact {
-  ContactId?: number;
-  Name: string;
-  EMail: string;
-  Phone1: string;
-  Phone2: string;
-  Address1: string;
-  Address2: string;
-  City: string;
-  State: string;
-  Zip: string;
+  contactId?: number;
+  name: string;
+  eMail: string;
+  phone1: string;
+  phone2: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  zip: string;
 }
