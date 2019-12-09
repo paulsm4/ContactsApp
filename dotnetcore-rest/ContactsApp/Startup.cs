@@ -25,11 +25,13 @@ namespace ContactsApp
             //services.AddDbContext<ContactsContext>(opt => opt.UseInMemoryDatabase(databaseName: "ContactsDB"));
             services.AddDbContext<ContactsContext>(opt => 
                 opt.UseSqlServer(Configuration.GetConnectionString("ContactsDB")));
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { 
                     Title = "Contacts App", Version = "v1" });
             });
+
             services.AddCors(options => {
                 options.AddPolicy(CORS_POLICY,
                   builder => builder.AllowAnyOrigin()
@@ -50,13 +52,9 @@ namespace ContactsApp
             }
 
             app.UseRouting();
-
             app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseCors(CORS_POLICY);
+            app.UseHttpsRedirection();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwagger();
@@ -65,8 +63,11 @@ namespace ContactsApp
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Contacts App API");
             });
 
-            app.UseCors(CORS_POLICY);
-            //app.UseHttpsRedirection();
+            // *MUST* specify CORS before this...
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
