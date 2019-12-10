@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ListContactsComponent } from './list-contacts.component';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ContactsService } from '../services/contacts.service';
 
 describe('ListContactsComponent', () => {
   let component: ListContactsComponent;
@@ -8,6 +10,8 @@ describe('ListContactsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [ContactsService, HttpTestingController],
       declarations: [ ListContactsComponent ]
     })
     .compileComponents();

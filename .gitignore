@@ -4,6 +4,8 @@
 
 # MSVS Project artifacts
 build/
+packages/
+App_Data/
 **/build*.txt
 [Rr]elease/
 [Bb]in/

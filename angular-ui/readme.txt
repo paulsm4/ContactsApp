@@ -8,13 +8,9 @@
       cd angular-ui
       ng new contactsapp >
         Angular routing= Y, Stylesheet= CSS
-      ng generate class models/contact
-      ng generate class models/note
-      ng generate service services/contacts
-      ng generate component contact/add-contact
-      ng generate component contact/add-note
-      ng generate component contact/list-contacts
-      ng generate component contact/update-contact
+      ng generate class models/Contact
+      ng generate class models/Note
+      ng generate service services/Contacts
       <= Components TBD...
 
   - Models (based on .Net Core REST API, C#/Asp.Net Core project "dotnetcore-rest\ContactsApp"):
@@ -24,24 +20,26 @@
 
     - src\app\models\contact.ts =>
         export class Contact {
-          ContactId?: number;
-          Name: string;
-          EMail: string;
-          Phone1: string;
-          Phone2: string;
-          Address1: string;
-          Address2: string;
-          City: string;
-          State: string;
-          Zip: string;
+          contactId?: number;
+          name: string;
+          eMail: string;
+          phone1: string;
+          phone2: string;
+          address1: string;
+          address2: string;
+          city: string;
+          state: string;
+          zip: string;
         }
+        <= NOTE: originally declared fields in PascalCase (e,g, "ContactId", etc.)
+                 But the return JSON was camelCase (e.g. "contactId"); named the fields appropriately 
 
     - src\app\models\note.ts =>
         export class Note {
-          NoteId?: number;
-          Text: string;
-          Date: Date;
-          ContactId?: number;
+          noteId?: number;
+          text: string;
+          date: Date;
+          contactId?: number;
         }
 
   - Service:
@@ -133,7 +131,7 @@ export class ContactsService {
       this.myApiUrl = 'api/Contacts/';
   }
 
-    - Update app.module.gs to provide HttpClient et al:
+    - Update app.module.ts to provide HttpClient et al:
 ...
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -205,59 +203,326 @@ https://blog.angulartraining.com/how-to-write-unit-tests-for-angular-code-that-u
 
   - Implement getContacts():
     - contacts.service.cs:
-export class ContactsService {
-  ...
-  getContacts(): Observable<Contact[]> {
-    return this.http.get<Contact[]>(this.myAppUrl + this.myApiUrl)
-    .pipe(
-      retry(1),
-      catchError(this.errorHandler)
-    );
+        export class ContactsService {
+          ...
+           getContacts(): Observable<Contact[]> {
+            const url = this.myAppUrl + this.myApiUrl;
+            //const url = 'http://localhost:52774/api/Contacts/';  // CORS Error
+            //const url = 'https://localhost:44362/api/Contacts/';  // Works if Startup.cs/app.AddCors() *above* MVC
+        
+            console.log('ContactsService.getContacts(url=' + url + ')...');
+            return this.http.get<Contact[]>(url)
+            .pipe(
+              retry(1),
+              catchError(this.errorHandler)
+            );
+          }
+          ...
+          errorHandler(error) {
+            let errorMessage = '';
+            if (error.error instanceof ErrorEvent) {
+              // Get client-side error
+              errorMessage = error.error.message;
+            } else {
+              // Get server-side error
+              errorMessage = `Error Code: ${error.status}\n>>Message: ${error.message}`;
+            }
+            console.error(errorMessage);
+            return throwError(errorMessage);
+          ...
+
+    - contacts.service.spec.ts (run against live REST service, vs. HttpTestModule/mocks):
+        import { TestBed, inject } from '@angular/core/testing';
+        import { HttpClientModule, HttpClient } from '@angular/common/http';
+        import { ContactsService } from './contacts.service';
+        
+        describe('ContactsService', () => {
+        
+          let service: ContactsService;
+        
+          beforeEach(() => {
+            TestBed.configureTestingModule({
+              imports: [HttpClientModule],
+              providers: [ContactsService, HttpClient]
+            });
+            service = TestBed.get(ContactsService);
+          });
+          ...
+          it('should retrieve all contacts', (done) => {
+            expect(service).toBeTruthy();
+            // Call the service
+            service.getContacts().subscribe(data => {
+              console.log('it(should be created)@getContacts(): live data=', data);
+              expect(data).toBeTruthy();
+              done();  // 'expect' was used when there was no current spec Jasmine error unless "done()"
+            });
+          });
+          ...
+
+    - .Net Core/Startup.cs:
+         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+            ...
+            app.UseCors(CORS_POLICY);
+            app.UseRouting();
+            app.UseAuthorization();
+            app.UseHttpsRedirection();
+            ...
+            // *MUST* specify CORS before this...
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+            <= *MUST* configure CORS, *MUST* configure HTTPS redirect, and *MUST* call "app.UseCors()" before any MVC!!!
+               Else "Access to XMLHttpRequest at 'http://localhost:52774/api/Contacts/' from origin 'http://localhost:4200' has been blocked by CORS policy"...
+
+    - ng test (live .Net Core REST service running, https://localhost:44362/api/Contacts/)
+ContactsService.getContacts(url=https://localhost:44362/api/Contacts/)...
+it(should be created)@getContacts(): live data= 
+[{…}]
+  0: {contactId: 7, name: "Test-Contact", eMail: "Test-Contact@abc.com", phone1: "111-222-3333", phone2: null, …}
+  length: 1
+  __proto__: Array(0)
+    <= All tests pass!
+
+    - ng test (.Net Core REST service OFF):
+      - Chrome developer tools:
+          GET https://localhost:44362/api/Contacts/ net::ERR_CONNECTION_REFUSED
+          <= Good error message!
+      - HttpClient/Jasmine error handler:
+HttpErrorResponse {headers: HttpHeaders, status: 0, statusText: "Unknown Error", url: "https://localhost:44362/api/Contacts/", ok: false, …}
+  error: ProgressEvent {isTrusted: true, lengthComputable: false, loaded: 0, total: 0, type: "error", …}
+  headers: HttpHeaders {normalizedNames: Map(0), lazyUpdate: null, headers: Map(0)}
+  message: "Http failure response for https://localhost:44362/api/Contacts/: 0 Unknown Error"
+  name: "HttpErrorResponse"
+  ok: false
+  status: 0
+  statusText: "Unknown Error"
+  url: "https://localhost:44362/api/Contacts/"
+  __proto__: HttpResponseBase
+     <= Pretty useless error object...
+        ... but at least we're correctly hitting the error handler and logging whatever information we have...
+
+  - Built test component 
+    <= It would have been nice if Jasmine unit test provided all the "development scaffolding" we need.
+       Unfortunately, it doesn't.
+
+   - ng g component TestAPI
+     <= Creates test-api\test-api.component{.ts, .html, .spec}.ts
+
+   - test-api/test-api.component.ts:
+     ------------------------------
+       ...
+       @Component({
+         selector: 'app-test-api',
+         templateUrl: './test-api.component.html',
+         styleUrls: ['./test-api.component.css']
+       })
+       export class TestAPIComponent implements OnInit, OnDestroy {
+       
+         contactsList: Contact[];
+         private contactsSubscription$: Subscription;
+       
+         constructor(private contactsService: ContactsService) { }
+       
+         ngOnInit() {
+           this.loadContacts();
+         }
+       
+         ngOnDestroy() {
+           this.contactsSubscription$.unsubscribe();
+         }
+       
+         loadContacts() {
+             // // tslint:disable-next-line: deprecation
+             // this.contacts$ = this.contactsService.getContacts().pipe(tap(console.log));
+             this.contactsSubscription$ = this.contactsService.getContacts().subscribe(
+             data => {
+               this.contactsList = data;
+               console.log('loadContacts', data);
+             },
+             err => {
+               console.error('loadContacts', err);
+             });
+         }
+       
+}
+   - test-api/test-api.component.html:
+     --------------------------------
+       <h1>Contacts</h1>
+       <p *ngIf="!(contactsList)"><em>Loading...</em></p>
+       <table class="table table-sm table-hover" *ngIf="(contactsList)">
+         <thead>
+         ...
+       <tbody>
+           <tr *ngFor="let contact of (contactsList)">
+             <td>{{ contact.contactId }}</td>
+             <td>{{ contact.name }}</td>
+             <td>{{ contact.eMail }}</td>
+           </tr>
+         ...
+
+   - test-api/test-api.componentspec.ts:
+     ----------------------------------
+       describe('TestAPIComponent', () => {
+         let component: TestAPIComponent;
+         let fixture: ComponentFixture<TestAPIComponent>;
+       
+         beforeEach(async(() => {
+           console.log('TestAPIComponent@beforeEach(async)')
+           TestBed.configureTestingModule({
+             imports: [HttpClientTestingModule],
+             providers: [ContactsService, HttpTestingController],
+             declarations: [ TestAPIComponent ]
+           })
+           .compileComponents();
+         }));
+         ...
+         <= NOTE: we're using HttpClientTestingModule/mock HTTP here (vs. "live" in contacts.service text)
+
+* SO questions:
+  - https://stackoverflow.com/a/59240795/3135317
+  - https://stackoverflow.com/questions/59204306
+
+===================================================================================================
+
+* Implement UI:
+  - Cleanup; generate UI components:
+    - cd $PROJ\ContactsApp\angular-ui\contactsapp
+      del /s/q src\app\contacts
+      <= Nuke these
+      ng g component ListContacts
+      ng g component EditContact
+      ng g component EditNote
+      <= Create these
+
+  - ListContacts screen:
+    - Angular and Bootstrap:
+https://www.smashingmagazine.com/2019/02/angular-application-bootstrap/
+
+    - npm install --save bootstrap jquery =>
++ jquery@3.4.1
++ bootstrap@4.4.1
+    <= NOTE: Going forward, use *bootstrap* (with jQuery); *NOT* "ng-bootstrap"!
+
+    - angular.json:
+      ------------
+{
+   ...
+   "projects": {
+   "contactsapp": {
+     ...
+      "architect": {
+        "build": {
+          ...
+           "styles": [
+              "src/styles.css",
+               "node_modules/bootstrap/dist/css/bootstrap.min.css"
+              ...
+
+    - code .
+      list-contacts/list-contants.component.ts:
+      ----------------------------------------
+@Component({
+  selector: 'app-list-contacts',
+  templateUrl: './list-contacts.component.html',
+  styleUrls: ['./list-contacts.component.css']
+})
+export class ListContactsComponent implements OnInit, OnDestroy  {
+
+  contactsList: Contact[];
+  selectedContact: Contact;
+  private contactsSubscription$: Subscription;
+
+  constructor(private contactsService: ContactsService) { }
+
+  ngOnInit() {
+    this.loadContacts();
   }
-  ...
-  errorHandler(error) {
-    let errorMessage = '';
-    if (error.error instanceof ErrorEvent) {
-      // Get client-side error
-      errorMessage = error.error.message;
-    } else {
-      // Get server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-    }
-    console.error(errorMessage);
-    return throwError(errorMessage);
+
+  ngOnDestroy() {
+    this.contactsSubscription$.unsubscribe();
   }
+
+  addContact(contact: Contact) {
+    ; // TBD
+  }
+
+  deleteContact(contact: Contact) {
+    ; // TBD
+  }
+
+  editContact(contact: Contact) {
+    ; // TBD
+  }
+
+    - list-contacts/list-contants.component.html:
+      ------------------------------------------
+<div class="container" style="margin-top: 70px;">
+  <h1>Contacts</h1>
+  <p>
+    <button class="btn btn-primary" (click)="addContact()"> Add Contact</button>
+  </p>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th colspan="2">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let contact of contactsList">
+        <td>{{ contact.contactId }}</td>
+        <td> {{ contact.name }}</td>
+        <td> {{ contact.eMail }}</td>
+        <td>
+          <button class="btn btn-primary" (click)="editContact(contact)"> Contact Details </button>
+        </td>
+        <td>
+          <button class="btn btn-primary" (click)="deleteContact(contact)"> Delete Contact </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
   ...
 
-    - contacts.service.spec.ts:
-describe('ContactsService', () => {
+    - ng test =>
+      - 10 specs, 1 failure, randomized with seed 71656
+      - ListContactsComponent > should create
+          NullInjectorError: StaticInjectorError(DynamicTestModule)[ContactsService -> HttpClient]: 
+          StaticInjectorError(Platform: core)[ContactsService -> HttpClient]: 
+          NullInjectorError: No provider for HttpClient!
+      - FIX: 
+       list-contacts/list-contacts.component.spec.ts:
   ...
-  it('should retrieve all contacts', () => {
-    const contactsService: ContactsService = TestBed.get(ContactsService);
-    let contacts = contactsService.getContacts();
-    debugger;  // <-- Will stop here
-    expect(contacts).toBeTruthy();
-  });
+  describe('ListContactsComponent', () => {
+    let component: ListContactsComponent;
+    let fixture: ComponentFixture<ListContactsComponent>;
 
-    - Leave MSVS/.Net Core REST API *OFF*
+    beforeEach(async(() => {
+      TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
+        providers: [ContactsService, HttpTestingController],
+        declarations: [ ListContactsComponent ]
+      })
+      .compileComponents();
+      ...
+      <= Works OK!
 
-    - ng test
-      <= Karma test UI displays: http://localhost:9876/?id=77187353, Chrome browser
-      <F12> Developer Tools
-      <<Refresh>>
+    - ng serve => OK
+      Debugger:
+      <= OK ... but still running "TestAPIComponent"...
+      - app-routing.module.ts:
+        ---------------------
+...
+const routes: Routes = [
+  { path: '', component: ListContactsComponent, pathMatch: 'full' },
+  { path: 'test', component: TestAPIComponent, pathMatch: 'full' },
+  { path: '**', redirectTo: '/' }
+];
+  <= OK: both "http://localhost:4200" and "http://localhost:4200/test" work
+  <<Saved .bu6, Updated Git>>
 
-    - Bkpt@test:
-      - contacts:
-Observable {_isScalar: false, source: Observable, operator: CatchOperator}
-operator: CatchOperator {caught: Observable, selector: ƒ}
-source: Observable {_isScalar: false, source: Observable, operator: RetryOperator}
-_isScalar: false
-__proto__: Object
-      <= Test does *NOT* fail, do *NOT* see any kind of error... despite REST API offline...
-  
-    - Added additional instrumentation
-      Started MSVS
-      <= REST API: http://localhost:53561/api/Contacts/
-      <<Refresh Chrome>>
-      <= No-go: "ContactsService" *STILL* passes ... *WITHOUT* invoking web service...
+===================================================================================================
 

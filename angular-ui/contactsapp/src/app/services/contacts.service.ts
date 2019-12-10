@@ -21,16 +21,15 @@ export class ContactsService {
 
   constructor(private http: HttpClient) {
     //debugger;
+    // EXAMPLE (environment.ts) appUrl: 'https://localhost:44362/'
     this.myAppUrl = environment.appUrl;
     this.myApiUrl = 'api/Contacts/';
   }
 
   getContacts(): Observable<Contact[]> {
-    //const url = this.myAppUrl + this.myApiUrl;
+    const url = this.myAppUrl + this.myApiUrl;  //
     //const url = 'http://localhost:52774/api/Contacts/';  // CORS Error
-    //const url = 'https://localhost:44333/api/Contacts/';
-    //const url = 'https://localhost:53561/api/Contacts/';  // net::ERR_SSL_PROTOCOL_ERROR
-    const url = 'https://localhost:44362/api/Contacts/';  // net::ERR_CONNECTION_REFUSED
+    //const url = 'https://localhost:44362/api/Contacts/';  // Works if Startup.cs/app.AddCors() *above* MVC
 
     console.log('ContactsService.getContacts(url=' + url + ')...');
     return this.http.get<Contact[]>(url)
@@ -49,13 +48,14 @@ export class ContactsService {
   }
 
   errorHandler(error) {
+    //debugger;
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
       // Get client-side error
       errorMessage = error.error.message;
     } else {
       // Get server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      errorMessage = `Error Code: ${error.status}\n>>Message: ${error.message}`;
     }
     console.error(errorMessage);
     return throwError(errorMessage);
