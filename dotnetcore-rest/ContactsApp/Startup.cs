@@ -10,6 +10,8 @@ namespace ContactsApp
 {
     public class Startup
     {
+        public const string CORS_POLICY = "CorsPolicy";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -23,10 +25,21 @@ namespace ContactsApp
             //services.AddDbContext<ContactsContext>(opt => opt.UseInMemoryDatabase(databaseName: "ContactsDB"));
             services.AddDbContext<ContactsContext>(opt => 
                 opt.UseSqlServer(Configuration.GetConnectionString("ContactsDB")));
-            //services.AddSwaggerGen(c =>
-            //{
-            //    c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Contacts App", Version = "v1" });
-            //});
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { 
+                    Title = "Contacts App", Version = "v1" });
+            });
+
+            services.AddCors(options => {
+                options.AddPolicy(CORS_POLICY,
+                  builder => builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                );
+            });
+
             services.AddControllers();
         }
 
@@ -39,20 +52,22 @@ namespace ContactsApp
             }
 
             app.UseRouting();
-
             app.UseAuthorization();
+            app.UseCors(CORS_POLICY);
+            app.UseHttpsRedirection();
 
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Contacts App API");
+            });
+
+            // *MUST* specify CORS before this...
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
-            //// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-            //app.UseSwagger();
-            //app.UseSwaggerUI(c =>
-            //{
-            //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Contacts App API");
-            //});
         }
     }
 }
