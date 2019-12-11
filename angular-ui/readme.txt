@@ -704,6 +704,7 @@ https://stackoverflow.com/questions/48907760/label-and-input-in-same-line-on-for
 ===================================================================================================
 * Angular UI (continued): Implement "delete"
   - "Material" confirmation/alert boxes:
+https://appdividend.com/2019/02/11/angular-modal-tutorial-with-example-angular-material-dialog/
 https://blog.vanila.io/just-another-custom-alert-for-angular-c288bebc3c96
 https://blog.thoughtram.io/angular/2017/11/13/easy-dialogs-with-angular-material.html
 https://stackoverflow.com/questions/49472031/display-a-simple-alert-dialog-in-material-angular
@@ -721,6 +722,9 @@ added 2 packages from 1 contributor, updated 1 package and audited 18885 package
 
   - app.module.ts:
     -------------
+      import { MatDialogModule } from '@angular/material';
+      import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+      ...
       @NgModule({
         declarations: [
           AppComponent,
@@ -728,6 +732,7 @@ added 2 packages from 1 contributor, updated 1 package and audited 18885 package
           ConfirmationDlgComponent
        imports: [
           BrowserModule,
+          BrowserAnimationsModule,
           ...
           MatDialogModule
         ],
@@ -735,18 +740,28 @@ added 2 packages from 1 contributor, updated 1 package and audited 18885 package
         entryComponents: [ ConfirmationDlgComponent ],
         bootstrap: [AppComponent]
         ...
-        <= ConfirmationDlgComponent TBD in the next step...
+        <= NOTES:
+           1. We need to declare entryComponents: [] because the dialog will be created dynamically...
+           2. ConfirmationDlgComponent TBD in the next step...
+
+  - styles.css:
+    ----------
+    @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+    <= Dialog *WILL NOT WORK* correctly without a material .css theme
 
   - mkdir src/app/common
     common/confirmation-dlg.ts:
     --------------------------
+      import { Component, Inject } from '@angular/core';
+      import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+      
       @Component({
         template: `
-        <h1 mat-dialog-title>{{dlgTitle}}</h1>
+        <h3 mat-dialog-title>{{dlgTitle}}</h3>
         <mat-dialog-content>{{dlgMessage}}</mat-dialog-content>
         <mat-dialog-actions>
-        <button mat-button (click)="onNoClick()">No</button>
-        <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Yes</button>
+          <button mat-button mat-dialog-close>No</button>
+          <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Yes</button>
         </mat-dialog-actions>
         `
       })
@@ -756,26 +771,66 @@ added 2 packages from 1 contributor, updated 1 package and audited 18885 package
       
         constructor(
           public dialogRef: MatDialogRef<ConfirmationDlgComponent>,
-          @Inject(MAT_DIALOG_DATA) public message: string) {}
-      
-        onNoClick(): void {
-          this.dialogRef.close();
+          @Inject(MAT_DIALOG_DATA) public extraData) {
+          console.log('ConfirmationDlgComponent(), extraData:', extraData);
+          this.dlgTitle = extraData.dlgTitle;
+          this.dlgMessage = extraData.dlgMessage;
         }
         ...
+        <= Note that we're injecting a MatDialogRef, along with optional  MatDialogConfig and extraData, into the component
 
   - list-contacts/list-contacts.component.html:
     ------------------------------------------
       ...
       <button class="btn btn-primary" (click)="deleteContact(contact)"> Delete Contact </button>
+      <= ListContactsComponent "deleteContact()" will invoke the confirmation dialog, then call the "Delete" service...
 
   - list-contacts/list-contacts.component.ts.
     ----------------------------------------
-export class ListContactsComponent implements OnInit, OnDestroy  {
-  ...
-  constructor(
-    private contactsService: ContactsService,
-    public dialog: MatDialog) { }
-  ...
+      export class ListContactsComponent implements OnInit, OnDestroy  {
+        ...
+        constructor(
+          private contactsService: ContactsService,
+          private router: Router,
+          public dialog: MatDialog) { }
+        ...
+        deleteContact(contact: Contact) {
+          const dialogRef = this.dialog.open(ConfirmationDlgComponent, {
+            hasBackdrop: true,
+            position: {top: '', bottom: '', left: '', right: ''},
+            data: {
+              dlgTitle: 'Delete (' + contact.name + ')',
+              dlgMessage: 'Really delete this contact?'
+            }
+          });
 
+          dialogRef.afterClosed().subscribe(result => {
+            if(result) {
+              console.log('deleteContact@afterClosed(): Yes clicked');
+              this.contactsService.deleteContact(contact).subscribe(
+                data => {
+                  console.log('deleteContact', data);
+                  //this.router.navigate(['/']); This doesn't help: we're *already* here...
+                  this.loadContacts();  // This is what we need...
+                },
+                err => {
+                  console.error('deleteContact', err);
+                });
+            }
+          });
+        }
+        ...
+        <= Notes:
+           1. We need to inject "MatDialog" to get a "MatDialogRef<ConfirmationDlgComponent>" dialogRef
+           2. dialog.open() parameters: a) component type, b) MatDialogConfig, which may optionally contain c) "extra data"
+           3. We subscribe() to the Observable returned by dialogRef.afterClosed()
+           4. ConfirmationDlgComponent template HTML:
+                <button mat-button [mat-dialog-close]="true"
+                <= If result is "true", then we know the user hit "Yes", and we can delete the contact
+
+  - ALSO:
+    - Consider refactoring the confirmation dialog?
+    - Consider re-writing (e.g. in Bootstrap 4)?
+    - SO question: https://stackoverflow.com/a/59293891/3135317
 ===================================================================================================
 
