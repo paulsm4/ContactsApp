@@ -26,8 +26,18 @@ export class ContactsService {
     this.myApiUrl = 'api/Contacts/';
   }
 
+  createContact(contact: Contact): Observable<any> {
+    const url = this.mkUrl();
+    console.log('ContactsService.createContact(url=' + url + ')...');
+    return this.http.post<Contact[]>(url, contact)
+    .pipe(
+      retry(1),
+      catchError(this.errorHandler)
+    );
+  }
+
   getContacts(): Observable<Contact[]> {
-    const url = this.myAppUrl + this.myApiUrl;  //
+    const url = this.mkUrl();
     //const url = 'http://localhost:52774/api/Contacts/';  // CORS Error
     //const url = 'https://localhost:44362/api/Contacts/';  // Works if Startup.cs/app.AddCors() *above* MVC
 
@@ -61,4 +71,7 @@ export class ContactsService {
     return throwError(errorMessage);
   }
 
+  mkUrl() : string {
+   return this.myAppUrl + this.myApiUrl;
+  }
 }

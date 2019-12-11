@@ -525,4 +525,175 @@ const routes: Routes = [
   <<Saved .bu6, Updated Git>>
 
 ===================================================================================================
+* Angular UI (continued): "Add Contact" component:
+  - ng -g component add-contact
+C:\paul\proj\ContactsApp\angular-ui\contactsapp>ng g component add-contact
+CREATE src/app/add-contact/add-contact.component.html (26 bytes)
+CREATE src/app/add-contact/add-contact.component.spec.ts (657 bytes)
+CREATE src/app/add-contact/add-contact.component.ts (288 bytes)
+CREATE src/app/add-contact/add-contact.component.css (0 bytes)
+UPDATE src/app/app.module.ts (1074 bytes)
+
+  - app.module.ts:
+    -------------
+@NgModule({
+  declarations: [
+    AppComponent,
+    ListContactsComponent,
+    EditContactComponent,
+    EditNoteComponent,
+    TestAPIComponent,
+    AddContactComponent  <-- Automatically added
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    FormsModule   <= Got rid of "ReactiveFormsModule", substituted vanilla "FormsModule" instead...
+  ],
+  ...
+
+  - add-contact/add-contact.component.ts:
+    -------------------------------------
+@Component({
+  selector: 'app-add-contact',
+  templateUrl: './add-contact.component.html',
+  styleUrls: ['./add-contact.component.css']
+})
+export class AddContactComponent implements OnInit {
+  contact: Contact;
+
+  constructor(private contactsService: ContactsService, private router: Router) { }
+
+  ngOnInit() {
+    this.contact = new Contact();
+  }
+
+  createContact() {
+    console.log(this.contact);
+    this.contactsService.createContact(this.contact).subscribe(
+      data => {
+        console.log('createContact,data=', data);
+        this.router.navigate(['/']);
+      },
+      error => {
+        console.error('ERROR@createContact()', error);
+      });
+  }
+  <= route back to start page after successful "Add"
+
+  - add-contact/add-contact.component.html:
+    --------------------------------------
+<div class="container" style="margin-top: 70px;">
+  <div class="row">
+    <div class="col-sm-8 offset-sm-2">
+      <div>
+        <form class="container" [formGroup]="contactForm" (ngSubmit)="createContact()">
+          <div class="form-group">
+            <label for="id">ID</label>
+            <input [(ngModel)]="contact.contactId" type="text" name="id" class="form-control" id="id" aria-describedby="idHelp" placeholder="Enter ID">
+            <small id="idHelp" class="form-text text-muted">Enter your contact’s ID</small>
+
+            <label for="name">Contact Name</label>
+            <input [(ngModel)]="contact.name" type="text" name="name" class="form-control" id="name" aria-describedby="nameHelp" placeholder="Enter your name">
+            <small id="nameHelp" class="form-text text-muted">Enter your contact’s name</small>
+            ...
+          </div>
+        </form>
+        <button class="btn btn-primary" (click)="createContact()">Create contact</button>
+      </div>
+    </div>
+  </div>
+</div>
+f
+  - list-contacts/list-contacts.component.html:
+    ------------------------------------------
+      <button class="btn btn-primary" routerLink="/add-contact"> Add Contact</button>
+        <= Add Contact" button will route here...
+
+  - app-routing.module.ts:
+    ---------------------
+const routes: Routes = [
+  { path: '', component: ListContactsComponent, pathMatch: 'full' },
+  { path: 'add-contact', component: AddContactComponent },
+  { path: 'test', component: TestAPIComponent },
+  { path: '**', redirectTo: '/' }
+];
+   <= New "add-contact" route...
+
+  - ng serve
+    Debug > ERROR:
+null                                                                           add-contact.component.ts:23
+ContactsService.createContact(url=https://localhost:44362/api/Contacts/)...    contacts.service.ts:31
+ERROR                                                                          AddContactComponent.html:3
+  message:"Cannot read property 'contactId' of null"
+TypeError: Cannot read property 'contactId' of null                            AddContactComponent.html:3
+ERROR CONTEXT                                                                  AddContactComponent.html:3
+...  <= PROBLEM: We had an "ID" text input entry.
+        SOLUTION: Eliminated the field. The *SYSTEM* assigns contact ID (the REST service), *NOT* the user!
+
+  - ng test => ERROR:
+AddContactComponent > should create
+Failed: Template parse errors:
+Can't bind to 'ngModel' since it isn't a known property of 'input'. ("
+    - SOLUTION:
+        beforeEach(async(() => {
+          TestBed.configureTestingModule({
+            imports: [HttpClientTestingModule, FormsModule],
+            providers: [ContactsService, HttpTestingController],
+            declarations: [ AddContactComponent ]
+            ...
+
+    - NEXT ERROR:
+NullInjectorError: StaticInjectorError(DynamicTestModule)[AddContactComponent -> Router]: 
+  StaticInjectorError(Platform: core)[AddContactComponent -> Router]: 
+    NullInjectorError: No provider for Router!
+    - SOLUTION:
+        import { RouterTestingModule } from '@angular/router/testing';
+        ...
+          beforeEach(async(() => {
+            TestBed.configureTestingModule({
+              imports: [HttpClientTestingModule, FormsModule, RouterTestingModule],
+              providers: [ContactsService, HttpTestingController],
+              declarations: [ AddContactComponent ]
+              ...
+              <= Clean compile!
+    << Unit tests all compile/run cleanly >>
+
+    - Formatting problem, add-contact.component.html:
+      
+    - FORMATTING PROBLEM: <label> and <input> for each item on SEPARATE LINES
+      <= Too tall vertically...
+    - SOLUTION:
+https://stackoverflow.com/questions/48907760/label-and-input-in-same-line-on-form-group
+      add-contact/add-contact.component.html:
+      --------------------------------------
+<div class="container" style="margin-top: 70px;">
+  <h1>Contacts</h1>
+    <form>
+      <div class="form-group row">
+        <label for="name" class="col-sm-2 col-form-label">Contact Name</label>
+        <div class="col-sm-8">
+          <input [(ngModel)]="contact.name" type="text" name="name" class="form-control" id="name" placeholder="Enter your name">
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label for="email" class="col-sm-2 col-form-label">Contact Email</label>
+        <div class="col-sm-8">
+          <input [(ngModel)]="contact.eMail" type="text" name="eMail" class="form-control" id="eMail" placeholder="Enter your email">
+        </div>
+      </div>
+      ...
+      <div class="form-group row">
+        <label for="phone2" class="col-sm-2 col-form-label">Alternate Phone</label>
+        <div class="col-sm-8">
+          <input [(ngModel)]="contact.phone2" type="text" name="phone2" class="form-control" id="phone2" placeholder="Enter your alternate phone#">
+        </div>
+      </div>
+  </form>
+  <button class="btn btn-primary" (click)="createContact()">Create contact</button>
+</div>
+
+===================================================================================================
 

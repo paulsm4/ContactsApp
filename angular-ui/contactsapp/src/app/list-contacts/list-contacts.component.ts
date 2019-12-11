@@ -24,10 +24,6 @@ export class ListContactsComponent implements OnInit, OnDestroy  {
     this.contactsSubscription$.unsubscribe();
   }
 
-  addContact(contact: Contact) {
-    ; // TBD
-  }
-
   deleteContact(contact: Contact) {
     ; // TBD
   }

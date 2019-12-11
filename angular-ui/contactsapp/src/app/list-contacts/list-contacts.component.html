@@ -1,7 +1,7 @@
 <div class="container" style="margin-top: 70px;">
   <h1>Contacts</h1>
   <p>
-    <button class="btn btn-primary" (click)="addContact()"> Add Contact</button>
+    <button class="btn btn-primary" routerLink="/add-contact"> Add Contact</button>
   </p>
   <table class="table table-hover">
     <thead>
@@ -26,16 +26,17 @@
       </tr>
     </tbody>
   </table>
+  <!--
   <div class="card text-center" *ngIf="selectedContact">
       <div class="card-header">
         # {{selectedContact.contactId}}
       </div>
       <div class="card-block">
-        <h4 class="card-title">{{selectedContact.name}}</h4>
+        <h4 class="card-title">{{selectedContact.details}}</h4>
         <p class="card-text">
           {{selectedContact.name}}
         </p>
       </div>
-
     </div>
+  -->
 </div>
