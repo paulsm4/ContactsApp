@@ -1,0 +1,116 @@
+* Create a reusable confirmation dialog in Angular 7, using Angular Material
+  https://firstclassjs.com/create-a-reusable-confirmation-dialog-in-angular-7-using-angular-material/
+
+1. Create project
+   - ng new angular-app
+   - npm install --save @angular/material @angular/cdk @angular/animations
+     <= The  Component Dev Kit (CDK) is a set of Material tools that implement common interaction patterns
+
+   - app.module.ts:
+     -------------
+       ...
+       imports: [
+           BrowserModule,
+           BrowserAnimationsModule,
+           MatDialogModule,
+           MatButtonModule
+   - styles.css:
+     ----------
+       @import ‘~@angular/material/prebuilt-themes/deeppurple-amber.css’;
+
+2. Create configuration dialog component:
+   - ng g component components/share/confirmation-dialog
+   - app.module.ts should contain the following:
+       import { MatDialogModule } from '@angular/material/dialog';
+       import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+       import { MatButtonModule } from '@angular/material/button';
+         ...
+         declarations: [
+             AppComponent,
+             ConfirmationDialogComponent
+           ],
+           imports: [
+             BrowserModule,
+             BrowserAnimationsModule,
+             MatDialogModule,
+             MatButtonModule
+           ],
+           entryComponents: [
+             ConfirmationDialogComponent
+           ],
+    - confirmation-dialog.component.html:
+      ----------------------------------
+        <div mat-dialog-content>
+         {{message}}
+        </div>
+        <div mat-dialog-actions>
+          <button mat-button (click)="onNoClick()">No</button>
+          <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Yes</button>
+          ...
+          <= Actions= "Yes" and "No"
+             "No" simply closes the dialog
+             "Yes": emits parameter "true" to whoever subscribed to "dialogRef.afterClosed()"
+             The "true" comes from the HTML template (mat-button [mat-dialog-close]="true"), not the .ts
+
+    - confirmation-dialog.component.ts:
+      --------------------------------
+        import { Component, Inject } from '@angular/core';
+        import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+
+        @Component({
+          selector: 'app-confirmation-dialog',
+          templateUrl: './confirmation-dialog.component.html',
+          styleUrls: ['./confirmation-dialog.component.css']
+        })
+        export class ConfirmationDialogComponent {
+
+          constructor(
+            public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
+            @Inject(MAT_DIALOG_DATA) public message: string) { }
+
+          onNoClick(): void {
+            this.dialogRef.close();
+          }
+        }
+        <= The confirmation dialog's dialogRef and {{message}} text will be injected at construction
+
+3. Add some client code to invoke the dialog:
+    - app.component.html:
+      ------------------
+        <button mat-button (click)="openDialog()">Confirm box</button>
+    - app.component.ts:
+      ----------------
+        import { Component } from '@angular/core';
+        import { MatDialog } from '@angular/material';
+        import { ConfirmationDialogComponent } from './components/shared/confirmation-dialog/confirmation-dialog.component';
+        @Component({
+          selector: 'app-root',
+          templateUrl: './app.component.html',
+          styleUrls: ['./app.component.css']
+        })
+        export class AppComponent {
+          title = 'angular-confirmation-dialog';
+          constructor(public dialog: MatDialog) {}
+          openDialog(): void {
+            const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+              width: '350px',
+              data: "Do you confirm the deletion of this data?"
+            });
+            dialogRef.afterClosed().subscribe(result => {
+              if(result) {
+                console.log('Yes clicked');
+                // DO SOMETHING
+              }
+            });
+          }
+        }
+        <= The 2nd parameter represents an optional configuration object; here comtaining width and "data".
+
+* Alternate links:
+https://blog.vanila.io/just-another-custom-alert-for-angular-c288bebc3c96
+https://blog.thoughtram.io/angular/2017/11/13/easy-dialogs-with-angular-material.html
+https://stackoverflow.com/questions/49472031/display-a-simple-alert-dialog-in-material-angular
+https://blog.angular-university.io/angular-material-dialog/
+https://firstclassjs.com/create-a-reusable-confirmation-dialog-in-angular-7-using-angular-material/
+https://material.angular.io/components/dialog/api
+

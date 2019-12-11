@@ -695,5 +695,87 @@ https://stackoverflow.com/questions/48907760/label-and-input-in-same-line-on-for
   <button class="btn btn-primary" (click)="createContact()">Create contact</button>
 </div>
 
+* TBD:
+  1. Implement "Delete" and "Modify"
+  2. Determine if "Add" and "Modify" can share the same component, or need to be separate components
+  3. Implement "Notes" (Create/Read/Update/Delete)
+  4. General cleanup
+
+===================================================================================================
+* Angular UI (continued): Implement "delete"
+  - "Material" confirmation/alert boxes:
+https://blog.vanila.io/just-another-custom-alert-for-angular-c288bebc3c96
+https://blog.thoughtram.io/angular/2017/11/13/easy-dialogs-with-angular-material.html
+https://stackoverflow.com/questions/49472031/display-a-simple-alert-dialog-in-material-angular
+https://blog.angular-university.io/angular-material-dialog/
+https://firstclassjs.com/create-a-reusable-confirmation-dialog-in-angular-7-using-angular-material/
+https://material.angular.io/components/dialog/api
+  <= "Material" seems to be the most popular alternative for "alert boxes"...
+
+  - npm install --save @angular/material @angular/cdk @angular/animations
++ @angular/material@8.2.3
++ @angular/cdk@8.2.3
+added 2 packages from 1 contributor, updated 1 package and audited 18885 packages in 98.592s
+    <= We already imported "material" above
+       The  Component Dev Kit (CDK) is a set of Material tools that implement common interaction patterns
+
+  - app.module.ts:
+    -------------
+      @NgModule({
+        declarations: [
+          AppComponent,
+          ...
+          ConfirmationDlgComponent
+       imports: [
+          BrowserModule,
+          ...
+          MatDialogModule
+        ],
+        providers: [],
+        entryComponents: [ ConfirmationDlgComponent ],
+        bootstrap: [AppComponent]
+        ...
+        <= ConfirmationDlgComponent TBD in the next step...
+
+  - mkdir src/app/common
+    common/confirmation-dlg.ts:
+    --------------------------
+      @Component({
+        template: `
+        <h1 mat-dialog-title>{{dlgTitle}}</h1>
+        <mat-dialog-content>{{dlgMessage}}</mat-dialog-content>
+        <mat-dialog-actions>
+        <button mat-button (click)="onNoClick()">No</button>
+        <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Yes</button>
+        </mat-dialog-actions>
+        `
+      })
+      export class ConfirmationDlgComponent {
+        dlgTitle: string;
+        dlgMessage: string;
+      
+        constructor(
+          public dialogRef: MatDialogRef<ConfirmationDlgComponent>,
+          @Inject(MAT_DIALOG_DATA) public message: string) {}
+      
+        onNoClick(): void {
+          this.dialogRef.close();
+        }
+        ...
+
+  - list-contacts/list-contacts.component.html:
+    ------------------------------------------
+      ...
+      <button class="btn btn-primary" (click)="deleteContact(contact)"> Delete Contact </button>
+
+  - list-contacts/list-contacts.component.ts.
+    ----------------------------------------
+export class ListContactsComponent implements OnInit, OnDestroy  {
+  ...
+  constructor(
+    private contactsService: ContactsService,
+    public dialog: MatDialog) { }
+  ...
+
 ===================================================================================================
 

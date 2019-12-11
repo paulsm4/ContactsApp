@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -28,8 +28,18 @@ export class ContactsService {
 
   createContact(contact: Contact): Observable<any> {
     const url = this.mkUrl();
-    console.log('ContactsService.createContact(url=' + url + ')...');
+    console.log('ContactsService.createContact(url=' + url + '):', contact);
     return this.http.post<Contact[]>(url, contact)
+    .pipe(
+      retry(1),
+      catchError(this.errorHandler)
+    );
+  }
+
+  deleteContact(contact: Contact): Observable<any> {
+    const url = this.mkUrl() + contact.contactId;
+    console.log('ContactsService.deleteContact(url=' + url + '):', contact);
+    return this.http.delete<Contact[]>(url)
     .pipe(
       retry(1),
       catchError(this.errorHandler)
