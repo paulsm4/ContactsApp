@@ -46,6 +46,14 @@ export class ContactsService {
     );
   }
 
+  getContact(contactId: number): Observable<Contact> {
+      return this.http.get<Contact>(this.myAppUrl + this.myApiUrl +contactId)
+      .pipe(
+        retry(1),
+        catchError(this.errorHandler)
+      );
+  }
+
   getContacts(): Observable<Contact[]> {
     const url = this.mkUrl();
     //const url = 'http://localhost:52774/api/Contacts/';  // CORS Error
@@ -59,12 +67,14 @@ export class ContactsService {
     );
   }
 
-  getContact(contactId: number): Observable<Contact> {
-      return this.http.get<Contact>(this.myAppUrl + this.myApiUrl +contactId)
-      .pipe(
-        retry(1),
-        catchError(this.errorHandler)
-      );
+  updateContact(contact: Contact): Observable<Contact> {
+    const url = this.mkUrl() + contact.contactId;
+    console.log('ContactsService.updateContact(url=' + url + '):', contact);
+    return this.http.put<Contact>(url, JSON.stringify(contact), this.httpOptions)
+    .pipe(
+      retry(1),
+      catchError(this.errorHandler)
+    );
   }
 
   errorHandler(error) {

@@ -45,7 +45,6 @@ export class ListContactsComponent implements OnInit, OnDestroy  {
         this.contactsService.deleteContact(contact).subscribe(
           data => {
             console.log('deleteContact', data);
-            //this.router.navigate(['/']); This doesn't help: we're *already* here...
             this.loadContacts();  // This is what we need...
           },
           err => {
@@ -55,8 +54,8 @@ export class ListContactsComponent implements OnInit, OnDestroy  {
     });
   }
 
-  editContact(contact: Contact) {
-    ; // TBD
+  editContact(contactId: number) {
+    this.router.navigate(['/edit-contact', contactId]);
   }
 
   loadContacts() {

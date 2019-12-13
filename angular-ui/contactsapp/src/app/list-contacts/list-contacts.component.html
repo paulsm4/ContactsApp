@@ -18,7 +18,7 @@
         <td> {{ contact.name }}</td>
         <td> {{ contact.eMail }}</td>
         <td>
-          <button class="btn btn-primary" (click)="editContact(contact)"> Contact Details </button>
+          <button class="btn btn-primary" (click)="editContact(contact.contactId)"> Edit Contact </button>
         </td>
         <td>
           <button class="btn btn-primary" (click)="deleteContact(contact)"> Delete Contact </button>

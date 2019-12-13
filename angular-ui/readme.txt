@@ -832,5 +832,207 @@ added 2 packages from 1 contributor, updated 1 package and audited 18885 package
     - Consider refactoring the confirmation dialog?
     - Consider re-writing (e.g. in Bootstrap 4)?
     - SO question: https://stackoverflow.com/a/59293891/3135317
+
 ===================================================================================================
 
+* Angular UI: Edit Contact:
+  - ng g component EditContact
+    <= Q: Do we really need this?  Or can we re-use "AddContactComponent?
+       GAMEPLAN: Let's start off by creating it, and copy/paste from "AddContactComponent as needed..
+
+  - Copied/pasted from add-contact.component.ts/html
+
+  - list-contacts.component.html:
+    ----------------------------
+      <button class="btn btn-primary" (click)="editContact(contact.contactId)"> Edit Contact </button>
+
+  - list-contacts.component.ts:
+    --------------------------
+      editContact(contactId: number) {
+        this.router.navigate(['/edit-contact', contactId]);
+      }
+
+  - app-routing.module.ts:
+    ---------------------]
+      const routes: Routes = [
+        { path: '', component: ListContactsComponent, pathMatch: 'full' },
+        { path: 'add-contact', component: AddContactComponent },
+        { path: 'edit-contact', component: EditContactComponent },
+        { path: 'test', component: TestAPIComponent },
+        { path: '**', redirectTo: '/' }
+      ];
+      
+  - ng test =>
+    - ERRORS:
+ListContactsComponent > should create
+NullInjectorError: StaticInjectorError(DynamicTestModule)[ListContactsComponent -> Router]: 
+  StaticInjectorError(Platform: core)[ListContactsComponent -> Router]: 
+    NullInjectorError: No provider for Router!
+    <= Need to add HttpClientTestingModule, RouterTestingModule to Jasmine test:
+
+ListContactsComponent > should create
+Failed: Unexpected value 'undefined' imported by the module 'DynamicTestModule'
+error properties: Object({ ngSyntaxError: true })
+Error: Unexpected value 'undefined' imported by the module 'DynamicTestModule'
+
+    - list-contacts.component.spec.ts:
+      -------------------------------
+        beforeEach(async(() => {
+          TestBed.configureTestingModule({
+            imports: [HttpClientTestingModule, RouterTestingModule, MatDialogModule],
+            providers: [ContactsService, HttpTestingController],
+            declarations: [ ListContactsComponent ]
+          })
+        <= ListContactsComponent doesn't have any direct dependency on "Material Dialog", so why the error?!?
+
+    - NEXT ERROR:
+EditContactComponent > should create
+Failed: Template parse errors:
+Can't bind to 'ngModel' since it isn't a known property of 'input'. ("lass="col-sm-2 col-form-label">Contact Name</label>
+        <div class="col-sm-8">
+          <input [ERROR ->][(ngModel)]="contact.name" type="text" name="name" class="form-control" id="name" placeholder="Enter "): ng:///DynamicTestModule/EditContactComponent.html@6:17
+      <= Need to import "FormsModule".  Since we're going to need them sooner or later, just add all the imports now:'
+
+    - edit-contacts.component.spec.ts:
+      -------------------------------
+        beforeEach(async(() => {
+            TestBed.configureTestingModule({
+              imports: [HttpClientTestingModule, FormsModule, RouterTestingModule, MatDialogModule],
+              declarations: [ EditContactComponent ]
+            })
+        <= Fixed the problem ... but one more (new!) error..
+
+    - NEXT ERROR:
+EditContactComponent > should create
+TypeError: Cannot read property 'name' of undefined
+error properties: Object({ ngDebugContext: DebugContext_({ view: Object({ def: Object({ factory: Function, nodeFlags: 4869123, rootNodeFlags: 1, nodeMatchedQueries: 0, flags: 0, nodes: [ Object({ nodeIndex: 0, parent: null, renderParent: null, bindingIndex: 0, outputIndex: 0, checkIndex: 0, flags: 1, childFlags: 4869123, directChildFlags: 1, childMatchedQueries: 0, matchedQueries: Object({  }), matchedQueryIds: 0, references: Object({  }), ngContentIndex: null, childCount: 99, bindings: [  ], bindingFlags: 0, outputs: [  ], element: Object({ ns: '', name: 'div', attrs: [ Array, Array ], template: null, componentProvider: null, componentView: null, componentRendererType: null, publicProviders: null({  }), allProviders: null({  }), handleEvent: Function }), provider: null, text: null, query: null, ngContent: null }), Object({ nodeIndex: 1, parent: Object({ nodeIndex: 0, parent: null, renderParent: null, bindingIndex: 0, outputIndex: 0, checkIndex: 0, flags: 1, childFlags: 4869123, directChildFlags: 1,  ...
+    at <Jasmine>
+    at Object.eval [as updateDirectives] (ng:///DynamicTestModule/EditContactComponent.ngfactory.js:443:34)
+    <= "contact" is initially null (until we read it from REST, in ngInit())
+
+    - edit-contacts.component.ts:
+      --------------------------
+        export class EditContactComponent implements OnInit {
+          contact: Contact;
+          ...
+          ngOnInit() {
+            this.contact = new Contact();  // Temporary hack (to satisfy unit test)
+            // Fetch contact from REST service
+          <= OK: everything "green"!
+    << Saved .bu10 >>
+
+  - ng serve:
+    - Set bkpts: ListContact@EditContact, EditContact@ngInit
+      VSCode > Debug >
+      - Hits ListContact@editContact(contactId: number) { this.router.navigate(['/edit-contact', contactId]);
+        <= OK, contactId= 17... 
+           ... but stays in same place (doesn't "navigate" to edit page...)
+      - TROUBLESHOOTING:       
+          this.router.navigate(['/edit-contact']  <= This works (no parameter)
+      - PROBLEM:
+          <= If I want to pass an argument ... then I need to declare it in the route!
+      - app-routing.module.ts:
+        ---------------------
+          { path: 'edit-contact/:contactId', component: EditContactComponent },
+      - list-contacts.component.ts:
+        --------------------------
+          editContact(contactId: number) {
+            this.router.navigate(['/edit-contact', contactId]);
+            <= This works!
+               URL= http://localhost:4200/edit-contact/17
+
+  - Working code:
+    - app-routing.module.ts:
+      ---------------------
+const routes: Routes = [
+  { path: '', component: ListContactsComponent, pathMatch: 'full' },
+  { path: 'add-contact', component: AddContactComponent },
+  { path: 'edit-contact/:contactId', component: EditContactComponent },
+  { path: 'test', component: TestAPIComponent },
+  { path: '**', redirectTo: '/' }
+];
+
+    - list-contacts.component.html:
+      ----------------------------
+        <td><button class="btn btn-primary" (click)="editContact(contact.contactId)"> Edit Contact </button>
+
+    - list-contacts.component.ts:
+      --------------------------
+        editContact(contactId: number) {
+            this.router.navigate(['/edit-contact', contactId]);
+          }    
+
+    - edit-contact.component.html:
+      ---------------------------
+        <div class="container" style="margin-top: 70px;">
+          <h1>Edit {{contact.name}}:</h1>
+            <form>
+              <div class="form-group row">
+                <label for="name" class="col-sm-2 col-form-label">Contact Name</label>
+                <div class="col-sm-8">
+                  <input [(ngModel)]="contact.name" type="text" name="name" class="form-control" id="name">
+                  ...
+            </form>
+          <button class="btn btn-primary" (click)="updateContact()">Update contact</button>
+        </div>
+
+    - edit-contact.component.ts:
+      -------------------------
+        export class EditContactComponent implements OnInit {
+          contact: Contact;
+          contactId: number;
+        
+          constructor(
+            private contactsService: ContactsService,
+            private activatedRoute: ActivatedRoute,
+            private router: Router,
+            public dialog: MatDialog) {
+              // tslint:disable-next-line:no-string-literal
+              this.contactId = activatedRoute.snapshot.params['contactId'];
+              this.contact = new Contact();  // Hack (to avoid "undefined" warning)
+              ...
+          ngOnInit() {
+            // Fetch contact from REST service
+            this.contactsService.getContact(this.contactId).subscribe(result => {
+              this.contact = result;
+            });
+            ...
+           updateContact() {
+            // Confirm update
+            const dialogRef = this.dialog.open(ConfirmationDlgComponent, {
+              hasBackdrop: true,
+              position: {top: '', bottom: '', left: '', right: ''},
+              data: {
+                dlgTitle: 'Update (' + this.contact.name + ')',
+                dlgMessage: 'Update this contact?'
+              }
+            });
+        
+            dialogRef.afterClosed().subscribe(result => {
+              if (result) {
+                // Call REST service to update contact
+                this.contactsService.updateContact(this.contact).subscribe(
+                  data => {
+                    this.router.navigate(['/']);
+                  },
+                  err => {
+                    console.error('updateContact', err);
+                  });
+              }
+            });
+          ...
+
+    - contacts.service.ts:
+      -------------------
+        updateContact(contact: Contact): Observable<Contact> {
+          const url = this.mkUrl() + contact.contactId;
+          console.log('ContactsService.updateContact(url=' + url + '):', contact);
+          return this.http.put<Contact>(url, JSON.stringify(contact), this.httpOptions)
+          .pipe(
+            retry(1),
+            catchError(this.errorHandler)
+          );
+          ...
+
+       
+      
