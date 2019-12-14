@@ -1034,5 +1034,196 @@ const routes: Routes = [
           );
           ...
 
+===================================================================================================
+
+* Angular UI: "Notes" functionality
+  - GAMEPLAN: Get "Edit Contact" working first
+    <= Display, add, modify, delete note(s)
+
+  - Ensure there's a test record with some notes:
+      Postman: POST https://localhost:44362/api/Contacts
+{
+  "name": "Sy Snootles",
+  "eMail": "ss@abc.com",
+  "phone1": "111-222-3333",
+  "address1": "Emerald City",
+  "state": "Oz",
+  "zip": "00000",
+  "Notes":[
+    {"Text": "Now is the time for all good men"},
+    {"Text": "How now brown cow"},
+    {"Text": "Bibbidi Boppidi Boo"}
+  ]
+}  <= ContactId #18; NoteIds 24, 25, 26...
+
+  - models/contact.ts:
+    -----------------
+      export class Contact {
+        contactId?: number;
+        name: string;
+        eMail: string;
+        ...
+        notes: Note[];  // <-- Added this
+      }
+
+  - models/note.ts:
+    --------------
+      export class Note {
+        noteId?: number;
+        text: string;
+        date: Date;
+        contactId?: number;
+        public constructor(text: string) { this.text = text; }  // <-- Added constructor to simplify creating new note
+        ...
+
+  - edit-contact.component.html:
+    ---------------------------
+      <div class="container" style="margin-top: 70px;">
+        <h1>Edit {{contact.name}}:</h1>
+          <form>
+            <div class="form-group row">
+              <label for="name" class="col-sm-2 col-form-label">Contact Name</label>
+              <div class="col-sm-8">
+                <input [(ngModel)]="contact.name" type="text" name="name" class="form-control" id="name">
+                ...
+            <div class="form-group row">
+              <label for="eMail" class="col-sm-2 col-form-label">Contact Email</label>
+              <div class="col-sm-8">
+                <input [(ngModel)]="contact.eMail" type="text" name="eMail" class="form-control" id="eMail">
+                ...
+            <div class="card">
+              <div class="card-body">
+                <table border="0" cellpadding="2" width="100%">
+                  <thead>
+                    <tr>
+                    <th>Note#</th><th>Date</th><th>Text</th><th colspan="2">Action</th>
+                  </tr>
+                  </thead>
+                  <tr *ngFor="let note of contact.notes">
+                    <td>{{ note.noteId }}</td>
+                    <td> {{ note.date | date:'short' }}</td>
+                    <td> {{ note.text }}</td>
+                    <td style="float:right">
+                      <button class="btn btn-primary btn-sm float-right" (click)="editNote(note)"> Edit </button>
+                    </td>
+                    <td style="float:right">
+                      <button class="btn btn-primary btn-sm float-right" (click)="deleteNote(note)"> Delete </button>
+                    </td>
+                  </tr>
+                </table>
+              <button class="btn btn-primary btn-sm" (click)="addNote()"> Add Note </button>
+              </div>
+            </div>
+          </form>
+          ...  <= Added an HTML table within a Bootstrap card for the "notes" section
+                  TBD: FIX THIS LAYOUT!!!
+
+  - edit-contact.component.ts:
+    -------------------------
+export class EditContactComponent implements OnInit {
+  contact: Contact;
+  contactId: number;
+  ...
+  ngOnInit() {
+    // Fetch contact from REST service
+    this.contactsService.getContact(this.contactId).subscribe(result => {
+      this.contact = result;
+    });
+  ...
+  addNote() { /* TBD */ }
+  ...
+  editNote(note: Note) { /* TBD */ }
+  ...
+  deleteNote(note: Note) {
+    // Delete specified note from contact "notes" array
+    this.contact.notes = this.contact.notes.filter((e) => {
+      return e !== note;
+    });
+
+    // Update REST service with the modified record
+    this.updateContact();
+  }
+  <= So far, so good.  "Delete" works.  "Formatting" stinks...
+
+  - Implement "Add":
+    - edit-contact.component.html:
+      ---------------------------
+        <div class="card">
+          <div class="card-body">
+            ...
+            <div class="form-group row col-sm-8">
+              <input [(ngModel)]="newNote" type="text" name="newNote" class="form-control" id="newNote">
+              <button class="btn btn-primary btn-sm" (click)="addNote()"> Add Note </button>
+
+    - edit-contact.component.ts:
+      -------------------------
+        export class EditContactComponent implements OnInit {
+          contact: Contact;
+          contactId: number;
+          newNote: string;  // <-- Added this
+          ...
+          addNote() {
+            this.contact.notes.push(new Note(this.newNote));
+            this.updateContact();
+          }
+        <= Ugly, but it works...
+
+  - Implement "Modify":
+    - edit-contact.component.html:
+      ---------------------------
+        <div class="card">
+          <div class="card-body">
+            <table border="0" cellpadding="2" width="100%">
+              ...
+              <tr *ngFor="let note of contact.notes">
+                <td>{{ note.noteId }}</td>
+                <td> {{ note.date | date:'short' }}</td>
+                <td><input [(ngModel)]="note.text" type="text" name="text" class="form-control" id="note.noteId"></td>
+      <= This does *NOT* work - it repeats the test from the LAST note...
+
+    - EXPLANATION:
+      https://stackoverflow.com/a/38368261/3135317
+      - "Using @angular/forms when you use a <form> tag it automatically creates a FormGroup.
+      -  For every contained ngModel tagged <input> it will create a FormControl and add it into
+         the FormGroup created above; this FormControl will be named into the FormGroup using attribute name.
+      - When you mark it as standalone: true this will not happen (it will not be added to the FormGroup).
+
+    - SOLUTION:
+      edit-contact.component.html:
+      ---------------------------
+       <td><input [(ngModel)]="note.text" type="text"  [ngModelOptions]="{standalone: true}" class="form-control"></td>
+
+    - edit-contact.component.ts:
+      -------------------------
+       editNote() {
+           this.updateContact();
+         }
+
+  - ng test:
+ERROR in src/app/models/note.spec.ts:5:12 - error TS2554: Expected 1 arguments, but got 0.
+5     expect(new Note()).toBeTruthy()
+             ~~~~~~~~~~
+  src/app/models/note.ts:6:22
+    6   public constructor(text: string) { this.text = text; }
+                           ~~~~~~~~~~~~
+    An argument for 'text' was not provided.
+    <= Test build failing: Now that we've specified a non-default constructor, "note" test failing...
+
+    - WORKAROUND:
+      note.spec.ts:
+      ------------
+        describe('Note', () => {
+          it('should create an instance', () => {
+            expect(new Note('abc')).toBeTruthy();
+          });
+        });
+
+
+    - ng test:
+        12 specs, 0 failures, randomized with seed 30902
+        <= All "green"...
+
+      
+
        
       

@@ -22,13 +22,14 @@
         </div>
       </div>
 
+      <!--
       <div class="form-group row">
-        <label for="address1" class="col-sm-2 col-form-label">Address 2</label>
+        <label for="address2" class="col-sm-2 col-form-label">Address 2</label>
         <div class="col-sm-8">
           <input [(ngModel)]="contact.address2" type="text" name="address2" class="form-control" id="address2">
         </div>
       </div>
-
+      -->
       <div class="form-group row">
         <label for="city" class="col-sm-2 col-form-label">City</label>
         <div class="col-sm-8">
@@ -56,13 +57,40 @@
           <input [(ngModel)]="contact.phone1" type="text" name="phone1" class="form-control" id="phone1">
         </div>
       </div>
-
+      <!--
       <div class="form-group row">
         <label for="phone2" class="col-sm-2 col-form-label">Alternate Phone</label>
         <div class="col-sm-8">
           <input [(ngModel)]="contact.phone2" type="text" name="phone2" class="form-control" id="phone2">
         </div>
       </div>
-  </form>
+      -->
+      <div class="card">
+        <div class="card-body">
+          <table border="0" cellpadding="2" width="100%">
+            <thead>
+              <tr>
+              <th>Note#</th><th>Date</th><th>Text</th><th colspan="2">Action</th>
+            </tr>
+            </thead>
+            <tr *ngFor="let note of contact.notes; let idx = index">
+              <td>{{ note.noteId }}</td>
+              <td>{{ note.date | date:'short' }}</td>
+              <td><input [(ngModel)]="note.text" type="text"  [ngModelOptions]="{standalone: true}" class="form-control"></td>
+              <td style="float:right">
+                <button class="btn btn-primary btn-sm float-right" (click)="editNote()"> Edit </button>
+              </td>
+              <td style="float:right">
+                <button class="btn btn-primary btn-sm float-right" (click)="deleteNote(note)"> Delete </button>
+              </td>
+            </tr>
+          </table>
+          <div class="form-group row col-sm-8">
+            <input [(ngModel)]="newNote" type="text" name="newNote" class="form-control" id="newNote">
+            <button class="btn btn-primary btn-sm" (click)="addNote()"> Add Note </button>
+          </div>
+        </div>
+      </div>
+    </form>
   <button class="btn btn-primary" (click)="updateContact()">Update contact</button>
 </div>

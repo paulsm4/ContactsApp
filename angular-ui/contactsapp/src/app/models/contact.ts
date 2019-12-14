@@ -1,3 +1,5 @@
+import { Note } from './Note';
+
 export class Contact {
   contactId?: number;
   name: string;
@@ -9,4 +11,5 @@ export class Contact {
   city: string;
   state: string;
   zip: string;
+  notes: Note[];
 }

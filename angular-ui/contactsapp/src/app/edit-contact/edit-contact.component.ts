@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material';
 export class EditContactComponent implements OnInit {
   contact: Contact;
   contactId: number;
+  newNote: string;
 
   constructor(
     private contactsService: ContactsService,
@@ -22,16 +23,35 @@ export class EditContactComponent implements OnInit {
     public dialog: MatDialog) {
       // tslint:disable-next-line:no-string-literal
       this.contactId = activatedRoute.snapshot.params['contactId'];
+      this.contact = new Contact();  // Hack (to avoid "undefined" warning)
       console.log('EditContactComponent(), contactId=' + this.contactId);
   }
 
   ngOnInit() {
     // Fetch contact from REST service
-    this.contact = new Contact();  // Temporary hack (to satisfy unit test)
     this.contactsService.getContact(this.contactId).subscribe(result => {
       this.contact = result;
     });
+  }
 
+  // Push a new "note" record containing the "newNote" text field, and update the REST service
+  addNote() {
+    this.contact.notes.push(new Note(this.newNote));
+    this.updateContact();
+  }
+
+  // Model value already changed: just call the REST service to update the record
+  editNote() {
+    this.updateContact();
+  }
+
+  // Remove specifued note from array and update the REST service
+  deleteNote(note: Note) {
+    this.contact.notes = this.contact.notes.filter((e) => {
+      return e !== note;
+    });
+
+    this.updateContact();
   }
 
   updateContact() {
@@ -59,7 +79,6 @@ export class EditContactComponent implements OnInit {
           });
       }
     });
-
   }
 
 }
