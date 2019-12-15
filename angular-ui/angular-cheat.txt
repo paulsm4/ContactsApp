@@ -1,0 +1,25 @@
+Angular Cheat Sheet:
+-------------------
+
+* CLI Commands
+  - npm --version, ng --version, hpm -g [install||update] @angular/cli
+    npm install --save myPackage 
+  - ng new myproject
+     <= New boilerplace project
+    ng g class models/mymodel, ng g service services/myservice, ng g component EditContacts
+     <= "ng generate component..." will automatically create subdirectory; translate PascalCase names to dash-name
+  - ng test, ng serve
+  
+  
+* Project structure
+
+* Component types
+  - Module
+  - Component
+  - Class
+
+* Template syntax
+   
+
+
+

@@ -13,6 +13,7 @@ import { EditNoteComponent } from './edit-note/edit-note.component';
 import { TestAPIComponent } from './test-api/test-api.component';
 import { AddContactComponent } from './add-contact/add-contact.component';
 import { ConfirmationDlgComponent } from './common/confirmation-dlg.component';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,7 @@ import { ConfirmationDlgComponent } from './common/confirmation-dlg.component';
     FormsModule,
     MatDialogModule
   ],
-  providers: [],
+  providers: [DatePipe],
   entryComponents: [ ConfirmationDlgComponent ],
   bootstrap: [AppComponent]
 })

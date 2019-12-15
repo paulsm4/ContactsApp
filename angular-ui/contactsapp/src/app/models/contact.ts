@@ -1,6 +1,7 @@
 import { Note } from './Note';
 
 export class Contact {
+  public constructor() { this.notes = []; }
   contactId?: number;
   name: string;
   eMail: string;

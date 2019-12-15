@@ -1223,6 +1223,102 @@ ERROR in src/app/models/note.spec.ts:5:12 - error TS2554: Expected 1 arguments, 
         12 specs, 0 failures, randomized with seed 30902
         <= All "green"...
 
+===================================================================================================
+* Angular UI/Add Contact: add "Notes" functionality:
+
+  - contact.ts:
+      export class Contact {
+        public constructor() { this.notes = []; }
+        contactId?: number;
+        name: string;
+        ...
+        <= Initialize new contact to empty "notes[]" array
+
+  - add-contact.component.html:
+    ---------------------------
+      <div class="form-group row">
+        <label for="note" class="col-sm-2 col-form-label">Initial Comments</label>
+        <div class="col-sm-8">
+          <input [(ngModel)]="newNote" type="text" name="newNote" class="form-control" id="newNote"">
+          <= Add another field, for initial comments
+      ALSO: Commented out address2 and phone2: taking up too much real estate...
+
+  - add-contact.component.ts:
+    ------------------------
+export class AddContactComponent implements OnInit {
+  contact: Contact;
+  newNote: string;
+  ...
+  constructor(
+    private contactsService: ContactsService,
+    private router: Router,
+    private datePipe: DatePipe) {
+      this.newNote = 'Contact created ' + this.datePipe.transform(new Date(), 'M-dd-yyyy HH:mm');
+     }
+  ...
+createContact() {
+    // Add Initial comment
+    this.contact.notes.push(new Note(this.newNote);
+
+  - ng test =>
+AddContactComponent > should create
+NullInjectorError: StaticInjectorError(DynamicTestModule)[AddContactComponent -> DatePipe]: 
+  StaticInjectorError(Platform: core)[AddContactComponent -> DatePipe]: 
+    NullInjectorError: No provider for DatePipe!
+    
+    - FIX:
+      add-contact.component.spec.ts:
+      -----------------------------
+        describe('AddContactComponent', () => {
+          ...
+          beforeEach(async(() => {
+            TestBed.configureTestingModule({
+              imports: [HttpClientTestingModule, FormsModule, RouterTestingModule],
+              providers: [ContactsService, HttpTestingController, DatePipe],
+              ...
+              <= All Green...
+
+  - ng serve =>
+WARNING in ./src/app/models/Note.ts
+There are multiple modules with names that only differ in casing.
+This can lead to unexpected behavior when compiling on a filesystem with other case-semantic.
+Use equal casing. Compare these module identifiers:
+* C:\paul\proj\ContactsApp\angular-ui\contactsapp\node_modules\@ngtools\webpack\src\index.js!C:\paul\proj\ContactsApp\angular-ui\contactsapp\src\app\models\Note.ts
+    Used by 2 module(s), i. e.
+    C:\paul\proj\ContactsApp\angular-ui\contactsapp\node_modules\@ngtools\webpack\src\index.js!C:\paul\proj\ContactsApp\angular-ui\contactsapp\src\app\add-contact\add-contact.component.ts
+* C:\paul\proj\ContactsApp\angular-ui\contactsapp\node_modules\@ngtools\webpack\src\index.js!C:\paul\proj\ContactsApp\angular-ui\contactsapp\src\app\models\note.ts
+    Used by 2 module(s), i. e.
+    C:\paul\proj\ContactsApp\angular-ui\contactsapp\node_modules\@ngtools\webpack\src\index.js!C:\paul\proj\ContactsApp\angular-ui\contactsapp\src\app\edit-contact\edit-contact.component.ts 
+    VSCode > Debugger > Add Contact >
+    <= Angular convention ... and actual filename - is lower-case "note.ts".
+       Modified import in add-contact.component.ts => "note"
+
+    - VSCode > Debug > Add Contact >
+ERROR: RROR
+core.js:6014
+Error: Uncaught (in promise): NullInjectorError: StaticInjectorError(AppModule)[AddContactComponent -> DatePipe]: 
+
+    SOLUTION: Add to AppModule "providers[]":
+    - app.module.ts:
+      -------------
+        @NgModule({
+          declarations: [
+            ...
+          imports: [
+            ...
+          providers: [DatePipe],
+          entryComponents: [ ConfirmationDlgComponent ],
+          bootstrap: [AppComponent]
+        })
+  <= Voila!  "Add contact" now works; including "Note"
+
+  - TBD: 
+    - Cleanup formatting, Add/Edit Contact screens       
+    - Review, general cleanup
+    - Angular cheat sheet
+
+===================================================================================================
+
       
 
        

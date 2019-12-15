@@ -5,6 +5,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { FormsModule } from '@angular/forms';
 import { ContactsService } from '../services/contacts.service';
 import { RouterTestingModule } from '@angular/router/testing';
+import { DatePipe } from '@angular/common';
 
 describe('AddContactComponent', () => {
   let component: AddContactComponent;
@@ -13,7 +14,7 @@ describe('AddContactComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, FormsModule, RouterTestingModule],
-      providers: [ContactsService, HttpTestingController],
+      providers: [ContactsService, HttpTestingController, DatePipe],
       declarations: [ AddContactComponent ]
     })
     .compileComponents();
