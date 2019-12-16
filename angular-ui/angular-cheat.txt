@@ -2,15 +2,22 @@ Angular Cheat Sheet:
 -------------------
 
 * CLI Commands
-  - npm --version, ng --version, hpm -g [install||update] @angular/cli
-    npm install --save myPackage 
+  - npm --version, ng --version  # Get npm, Angular versions
+    npm -g [install||update] @angular/cli  # Install/update Angular version
+  - npm install --save myPackage 
+    <= npm install: Install locally; npm install -g: install globally, npm install --save: install locally, update "package.json"
   - ng new myproject
-     <= New boilerplace project
-    ng g class models/mymodel, ng g service services/myservice, ng g component EditContacts
-     <= "ng generate component..." will automatically create subdirectory; translate PascalCase names to dash-name
-  - ng test, ng serve
-  
-  
+    <= New boilerplate Angular project
+  - ng g class models/mymodel, ng g service services/myservice, ng g component EditContacts
+    <= New boilerplace Angular modules: "class", "service", "component" respectively
+       Note: "ng -g component MyComponent" will automatically
+              a) translate external filenames from "Pascal" to "Dash" case
+              b) create my-component/* subdirectory
+              c) create my-component/my-component.component{.ts, .html, .css, .spec.ts} project files
+              d) add "MyComponent" to parent NgModule (e,g. app.module.ts)
+  - ng build
+    <= Runs webpack to compile app; writes to /dist
+
 * Project structure
 
 * Component types

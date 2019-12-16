@@ -1319,7 +1319,180 @@ Error: Uncaught (in promise): NullInjectorError: StaticInjectorError(AppModule)[
 
 ===================================================================================================
 
-      
+* Angular/Cleanup UI: 
 
+1. Three common ways to install Bootstrap4 in Angular:
+   - Method 1:  Using CDN (Copy and Paste method)
+     <= This is how most non-Angular apps work: 
+     - <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+   - Method 2: Adding bootstrap CSS files to your project (Using CSS import)
+      style.css/style.sccs > @import url("bootstrap.min.css"); 
+
+   - Method 3: Using Angular CLI (npm install)
+     <= This is how most Angular apps do it:
+     - npm install bootstrap --save
+       npm install jquery --save
+       npm install popper.js --save (optional)
+       npm install font-awesome (optional)
+       <= angular.json automagically updated with links to node_modules/.../boostrap.min.css, bootstrap.min.js   
+
+2. Example usage (1st cut):
+   - add-contact.component.html:
+     --------------------------
+       <div class="container" style="margin-top: 70px;">
+         <h1>Add New Contact</h1>
+         <div class="row col-sm-8 offset-sm-2">
+             <form>
+               <div class="form-group">
+               <label for="name" class="col-sm-2 col-form-label">Contact Name</label>
+                 <input [(ngModel)]="contact.name" type="text" name="name" class="form-control" id="name" placeholder="Enter your name">
+               </div>
        
+               <div class="form-group">
+                 <label for="email" class="col-sm-2 col-form-label">Contact Email</label>
+                 <input [(ngModel)]="contact.eMail" type="text" name="eMail" class="form-control" id="eMail" placeholder="Enter your email">
+               </div>
+               ...
+               <div class="form-group">
+                 <label for="note" class="col-sm-2 col-form-label">Initial Comments</label>
+                 <input [(ngModel)]="newNote" type="text" name="initialNote" class="form-control" id="initialNote">
+               </div>
+             </form>
+         </div>
+         <button class="btn btn-primary" (click)="createContact()">Create contact</button>
+       </div>
+       <= Bootstrap classes/directives automagically available
+
+  - Bootstrap class/directives:
+    - form-group: provides a flexible class that encourages proper grouping of labels, controls, optional help text, and form validation messaging.
+      <= Each control (label, input, etc) stacked vertically on a separate row
+    - form-inline: Each control on the form group displayed on the same line
+    - row: Bootstrap .row, .form-row (variation on standard grid row), .col: overrides the default column gutters for tighter and more compact layouts.
+    - col-sm-8: define control as 8 small-columns
+    - offset-sm-2: Increase left offset by 2 small colums
+    - col-form-label (New in 4.x): vertically center label
+    - form-row (New in 4.x): For compact form layouts with the grid classes (swap your .row for a .form-row and go
+
+3. Put label and text input on same line:
+   - add-contact.component.html:
+     --------------------------
+      <form>
+        <div class="form-inline">
+        <label for="name" class="col-sm-2 col-form-label">Contact Name</label>
+          <input [(ngModel)]="contact.name" type="text" name="name" class="form-control" id="name" placeholder="Enter your name">
+        </div>
+
+        <div class="form-inline">
+          <label for="email" class="col-sm-2 col-form-label">Contact Email</label>
+          <input [(ngModel)]="contact.eMail" type="text" name="eMail" class="form-control" id="eMail" placeholder="Enter your email">
+        </div>
+        <= Substitute "form-line" 
+
+4. Reduce top and left margins:
+   - add-contact.component.html:
+     --------------------------
+       <div class="container" style="margin-top: 20px;">
+         <h1>Add New Contact</h1>
+         <div class="row col-sm-8">
+         <= Reduce CSS "margin-top"; eliminate Bootstrap "offset-sm-2"
+
+5. Align labels to left, input forms to right, all vertically aligned
+   - Links:
+       https://www.w3schools.com/Bootstrap/bootstrap_forms.asp
+       https://getbootstrap.com/docs/4.0/components/forms/
+
+   - 3 types of Bootstrap forms:
+     - Vertical (default): each element stacked vertically on a different row
+     - Inline: all elements on same row
+     - Horizontal: labels are aligned next to the input field 
+       <= Note: On small screens (767px and below), it will transform to a vertical form (labels are placed on top of each input).
+     - For Vertical forms:
+       - Wrap labels and form controls in <div class="form-group"> (needed for optimum spacing)
+       - Add class .form-control to all textual <input>, <textarea>, and <select> elements
+     - For Horizontal forms:
+       - Add class .form-horizontal to the <form> element
+       - Add class .control-label to all <label> elements
+
+   - add-contact.component.html:
+     --------------------------
+<div class="container" style="margin-top: 20px;">
+  <h1>Add New Contact</h1>
+  <form class="form-horizontal" >
+    <div class="form-group row">
+      <label for="name" class="control-label col-sm-2">Contact Name</label>
+      <input [(ngModel)]="contact.name" type="text" name="name" class="col-form-control col-sm-6" id="name" placeholder="Enter your name">
+    </div>
+
+    <div class="form-group row">
+      <label for="email" class="control-label col-sm-2">Contact Email</label>
+      <input [(ngModel)]="contact.eMail" type="text" name="eMail" class="col-form-control col-sm-6" id="eMail" placeholder="Enter your email">
+    </div>
+    ...
+    <= Decreasing class="control-label col-sm-2" smaller than col-sm-2 causes break in longer labels
+       Increasing class="col-form-control col-sm-6" greaternthan col-sm-6 increases input test width.
+    << Excellent improvement!!! >>
+
+6. Consolidate State/Zip and Phone1/Phone2 to same lines:
+   - add-contact.component.html:
+     --------------------------
+       <div class="form-group row">
+         <label for="state" class="control-label col-sm-2">State</label>&nbsp;
+         <input [(ngModel)]="contact.state" type="text" name="state" class="form-control col-sm-2" id="state" placeholder="State">
+         <label for="zip" class="control-label col-sm-1">Zip Code</label>&nbsp;
+         <input [(ngModel)]="contact.zip" type="text" name="zip" class="form-control col-sm-3" id="zip" placeholder="Zip">
+       </div>
+       
+       <div class="form-group row">
+         <label for="phone1" class="control-label col-sm-2">Primary Phone</label>&nbsp;
+         <input [(ngModel)]="contact.phone1" type="text" name="phone1" class="form-control col-sm-2" id="phone1" placeholder="Enter phone#">
+         <label for="phone2" class="control-label col-sm-2">Alternate Phone</label>&nbsp;
+         <input [(ngModel)]="contact.phone2" type="text" name="phone2" class="form-control col-sm-2" id="phone2" placeholder="Enter alt. phone#">
+       </div>
+
+7. Repeat changes for edit-contact.component:
+   - add-contact.component.html:
+     --------------------------
+       <div class="container" style="margin-top: 20px;">
+         <h1>Edit {{contact.name}}:</h1>
+         <form class="form-horizontal" >
+           <div class="form-group row">
+             <label for="name" class="control-label col-sm-2">Contact Name</label>
+             <input [(ngModel)]="contact.name" type="text" name="name" class="col-form-control col-sm-6" id="name">
+           </div>
+           <div class="form-group row">
+             <label for="email" class="control-label col-sm-2">Contact Email</label>
+             <input [(ngModel)]="contact.eMail" type="text" name="eMail" class="col-form-control col-sm-6" id="eMail" placeholder="Enter your email">
+           </div>
+           ...
+        <div class="card">
+          <div class="card-body">
+            <table border="0" cellpadding="2" width="100%">
+              ...
+              <tr>
+                <th>Note#</th><th>Date</th><th>Text</th><th>Action</th>
+              ...
+              <tr *ngFor="let note of contact.notes; let idx = index">
+                <td>{{ note.noteId }}</td>
+                <td>{{ note.date | date:'short' }}</td>
+                <td><input [(ngModel)]="note.text" type="text"  [ngModelOptions]="{standalone: true}" class="form-control"></td>
+                <td>
+                  <button class="btn btn-primary btn-sm" (click)="editNote()"> Edit </button>&nbsp;
+                  <button class="btn btn-primary btn-sm " (click)="deleteNote(note)"> Delete </button>
+                </td>
+              </tr>
+              <tr>
+                <td><label for="newNote" class="control-label">New Note</label></td>
+                <td colspan="2"><input [(ngModel)]="newNote" type="text" name="newNote" class="form-control" id="newNote"></td>
+                <td><button class="btn btn-primary btn-sm" (click)="addNote()"> Add Note </button></td>
+              </tr>
+              ...
+         </form>
+         <br/>
+         <button class="btn btn-primary" (click)="updateContact()">Update contact</button>
+       </div>
+
       

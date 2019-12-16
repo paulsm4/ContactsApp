@@ -1,78 +1,55 @@
-<div class="container" style="margin-top: 70px;">
-  <h1>Contacts</h1>
-    <form>
-      <div class="form-group row">
-        <label for="name" class="col-sm-2 col-form-label">Contact Name</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="contact.name" type="text" name="name" class="form-control" id="name" placeholder="Enter your name">
-        </div>
-      </div>
+<!--<style>.col-form-label {
+  float: left;
+  margin-right: 4px;
+}</style>
+-->
+<div class="container" style="margin-top: 20px;">
+  <h1>Add New Contact</h1>
+  <form class="form-horizontal" >
+    <div class="form-group row">
+      <label for="name" class="control-label col-sm-2">Contact Name</label>
+      <input [(ngModel)]="contact.name" type="text" name="name" class="col-form-control col-sm-6" id="name" placeholder="Enter your name">
+    </div>
 
-      <div class="form-group row">
-        <label for="email" class="col-sm-2 col-form-label">Contact Email</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="contact.eMail" type="text" name="eMail" class="form-control" id="eMail" placeholder="Enter your email">
-        </div>
-      </div>
+    <div class="form-group row">
+      <label for="email" class="control-label col-sm-2">Contact Email</label>
+      <input [(ngModel)]="contact.eMail" type="text" name="eMail" class="col-form-control col-sm-6" id="eMail" placeholder="Enter your email">
+    </div>
 
-      <div class="form-group row">
-        <label for="address1" class="col-sm-2 col-form-label">Address</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="contact.address1" type="text" name="address1" class="form-control" id="address1"  placeholder="Enter your Address">
-        </div>
-      </div>
+    <div class="form-group row">
+      <label for="address1" class="control-label col-sm-2">Address</label>
+      <input [(ngModel)]="contact.address1" type="text" name="address1" class="form-control col-sm-6" id="address1"  placeholder="Enter your Address">
+    </div>
 
-      <!--
-      <div class="form-group row">
-        <label for="address1" class="col-sm-2 col-form-label">Address 2</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="contact.address2" type="text" name="address2" class="form-control" id="address2" placeholder="Enter your Address (Line 2)">
-        </div>
-      </div>
-      -->
-      <div class="form-group row">
-        <label for="city" class="col-sm-2 col-form-label">City</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="contact.city" type="text" name="city" class="form-control" id="city" placeholder="City">
-        </div>
-      </div>
+    <div class="form-group row">
+      <label for="address1" class="control-label col-sm-2">Address 2</label>&nbsp;
+      <input [(ngModel)]="contact.address2" type="text" name="address2" class="form-control col-sm-6" id="address2" placeholder="Enter your Address (Line 2)">
+    </div>
 
-      <div class="form-group row">
-        <label for="state" class="col-sm-2 col-form-label">State</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="contact.state" type="text" name="state" class="form-control" id="state" placeholder="State">
-        </div>
-      </div>
+    <div class="form-group row">
+      <label for="city" class="control-label col-sm-2">City</label>&nbsp;
+      <input [(ngModel)]="contact.city" type="text" name="city" class="form-control col-sm-6" id="city" placeholder="City">
+    </div>
 
-      <div class="form-group row">
-        <label for="zip" class="col-sm-2 col-form-label">Zip Code</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="contact.zip" type="text" name="zip" class="form-control" id="zip" placeholder="Zip">
-        </div>
-      </div>
+    <div class="form-group row">
+      <label for="state" class="control-label col-sm-2">State</label>&nbsp;
+      <input [(ngModel)]="contact.state" type="text" name="state" class="form-control col-sm-2" id="state" placeholder="State">
+      <label for="zip" class="control-label col-sm-1">Zip Code</label>&nbsp;
+      <input [(ngModel)]="contact.zip" type="text" name="zip" class="form-control col-sm-3" id="zip" placeholder="Zip">
+    </div>
 
-      <div class="form-group row">
-        <label for="phone1" class="col-sm-2 col-form-label">Primary Phone</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="contact.phone1" type="text" name="phone1" class="form-control" id="phone1" placeholder="Enter your primary phone#">
-        </div>
-      </div>
+    <div class="form-group row">
+      <label for="phone1" class="control-label col-sm-2">Primary Phone</label>&nbsp;
+      <input [(ngModel)]="contact.phone1" type="text" name="phone1" class="form-control col-sm-2" id="phone1" placeholder="Enter phone#">
+      <label for="phone2" class="control-label col-sm-2">Alternate Phone</label>&nbsp;
+      <input [(ngModel)]="contact.phone2" type="text" name="phone2" class="form-control col-sm-2" id="phone2" placeholder="Enter alt. phone#">
+    </div>
 
-      <!--
-      <div class="form-group row">
-        <label for="phone2" class="col-sm-2 col-form-label">Alternate Phone</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="contact.phone2" type="text" name="phone2" class="form-control" id="phone2" placeholder="Enter your alternate phone#">
-        </div>
-      </div>
-      -->
+    <div class="form-group row">
+      <label for="note" class="control-label col-sm-2">Initial Comments</label>&nbsp;
+      <input [(ngModel)]="newNote" type="text" name="initialNote" class="form-control col-sm-6" id="initialNote">
+    </div>
 
-      <div class="form-group row">
-        <label for="note" class="col-sm-2 col-form-label">Initial Comments</label>
-        <div class="col-sm-8">
-          <input [(ngModel)]="newNote" type="text" name="initialNote" class="form-control" id="initialNote">
-        </div>
-      </div>
-    </form>
+  </form>
   <button class="btn btn-primary" (click)="createContact()">Create contact</button>
 </div>
