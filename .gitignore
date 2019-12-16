@@ -4,6 +4,8 @@
 
 # MSVS Project artifacts
 build/
+packages/
+App_Data/
 **/build*.txt
 [Rr]elease/
 [Bb]in/
@@ -11,6 +13,7 @@ build/
 [Dd]ebug/
 **/*.suo
 **/*.tmp
+.vs/
 
 # Eclipse artifacts
 .metadata/

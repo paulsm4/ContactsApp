@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29509.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactsApp", "ContactsApp\ContactsApp.csproj", "{E5EF704B-8F52-457C-95F1-511E99E00FBC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContactsApiTests", "ContactsApiTests\ContactsApiTests.csproj", "{553257DB-C7FB-4D22-ABED-82A792A8EF46}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{882E9E1A-E363-4B11-93B2-B546316CADF6}"
+	ProjectSection(SolutionItems) = preProject
+		nested-data.txt = nested-data.txt
+		readme.txt = readme.txt
+		run.bat = run.bat
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFSaving", "EFSaving\EFSaving.csproj", "{6F5C6854-605C-43EB-9249-108EA2A67045}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContosoUniversity", "ContosoUniversity\ContosoUniversity.csproj", "{D1B39862-8498-4E73-980A-B74C89F46C13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalEF", "MinimalEF\MinimalEF.csproj", "{4113A0B8-1AF8-461C-8A63-8282F123AAEF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E5EF704B-8F52-457C-95F1-511E99E00FBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5EF704B-8F52-457C-95F1-511E99E00FBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5EF704B-8F52-457C-95F1-511E99E00FBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5EF704B-8F52-457C-95F1-511E99E00FBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{553257DB-C7FB-4D22-ABED-82A792A8EF46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{553257DB-C7FB-4D22-ABED-82A792A8EF46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{553257DB-C7FB-4D22-ABED-82A792A8EF46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{553257DB-C7FB-4D22-ABED-82A792A8EF46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F5C6854-605C-43EB-9249-108EA2A67045}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F5C6854-605C-43EB-9249-108EA2A67045}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F5C6854-605C-43EB-9249-108EA2A67045}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F5C6854-605C-43EB-9249-108EA2A67045}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1B39862-8498-4E73-980A-B74C89F46C13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1B39862-8498-4E73-980A-B74C89F46C13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1B39862-8498-4E73-980A-B74C89F46C13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1B39862-8498-4E73-980A-B74C89F46C13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4113A0B8-1AF8-461C-8A63-8282F123AAEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4113A0B8-1AF8-461C-8A63-8282F123AAEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4113A0B8-1AF8-461C-8A63-8282F123AAEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4113A0B8-1AF8-461C-8A63-8282F123AAEF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {622B37BA-A35A-416A-BB00-0E8D0079BBC8}
+	EndGlobalSection
+EndGlobal

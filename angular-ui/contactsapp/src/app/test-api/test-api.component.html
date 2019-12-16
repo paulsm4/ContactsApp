@@ -1,0 +1,22 @@
+<h1>Contacts</h1>
+<p *ngIf="!(contactsList)"><em>Loading...</em></p>
+<table class="table table-sm table-hover" *ngIf="(contactsList)">
+  <thead>
+    <tr>
+      <th>ContactId</th>
+      <th>Name</th>
+      <th>EMail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let contact of (contactsList)">
+      <td>{{ contact.contactId }}</td>
+      <td>{{ contact.name }}</td>
+      <td>{{ contact.eMail }}</td>
+    </tr>
+  </tbody>
+</table>
+<ul *ngIf="(contactsList)">
+  <li>contactsList.length={{contactsList.length}}</li>
+  <li>contactsList[0]={{contactsList[0].name}}</li>
+</ul>

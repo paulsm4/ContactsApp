@@ -24,3 +24,10 @@
     - Search screen
     - Edit Details screen
     - Edit Notes screen
+
+* Git branch "aspnet-mvc5":
+  - ASP.Net MVC, Razor UI, EF database
+
+* Git branch "dotnetcore-angular":
+  - Two parallel project subfolders: { dotnetcore-rest/, angular-ui/ }
+

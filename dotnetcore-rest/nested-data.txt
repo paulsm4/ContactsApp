@@ -1,0 +1,653 @@
+* PROBLEM: Add/List/Update/Delete "Contacts" works OK...
+           ... but unable to add or update any "notes" as part of adding/updating a "contact"
+           <= Works OK with standalone EF ... why isn't it working from REST Controller???
+
+  - EXAMPLE:
+    - MSVS > ContactsController > PostContact()
+       <= Add bkpt in "Add Contact"
+    - Postman > POST http://localhost:53561/api/Contacts >
+{
+  "Name": "Salacious Crumb",
+  "EMail": "sc@abc.com",
+  "Notes": [ {"Text": "Text msg"}]
+}
+    - MSVS @PostContact():
+{ContactsApp.Models.Contact}
+  Address1   null
+  Address2   null
+  City       null
+  ContactId  0
+  EMail      "sc@abc.com"
+  Name       "Salacious Crumb"
+  Notes      Count = 1
+    [0]     {ContactsApp.Models.Note}
+      Contact    null
+      ContactId  0  
+      Date       {11/29/2019 12:11:24 PM}
+      NodeId     0
+      Text       "Text msg"
+  Phone1     null
+  Phone2     null
+  State      null
+  Zip        null
+
+    - Output window:
+Microsoft.AspNetCore.Routing.EndpointMiddleware: Information: Executing endpoint 'ContactsApp.Controllers.ContactsController.PostContact (ContactsApp)'
+Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker: Information: Route matched with {action = "PostContact", controller = "Contacts"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[ContactsApp.Models.Contact]] PostContact(ContactsApp.Models.Contact) on controller ContactsApp.Controllers.ContactsController (ContactsApp).
+...
+Microsoft.EntityFrameworkCore.Infrastructure: Information: Entity Framework Core 3.0.1 initialized 'ContactsContext' using provider 'Microsoft.EntityFrameworkCore.SqlServer' with options: None
+...
+Microsoft.EntityFrameworkCore.Database.Command: Information: Executing DbCommand [Parameters=[@p0='?' (Size = 4000), @p1='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (Size = 4000), @p6='?' (Size = 4000), @p7='?' (Size = 4000), @p8='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+INSERT INTO [Contacts] ([Address1], [Address2], [City], [EMail], [Name], [Phone1], [Phone2], [State], [Zip])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8);
+
+SELECT [ContactId]
+FROM [Contacts]
+WHERE @@ROWCOUNT = 1 AND [ContactId] = scope_identity();
+...
+Microsoft.EntityFrameworkCore.Database.Command: Information: Executing DbCommand [Parameters=[@p9='?' (DbType = Int32), @p10='?' (DbType = DateTime2), @p11='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SET NOCOUNT ON;
+INSERT INTO [Notes] ([ContactId], [Date], [Text])
+VALUES (@p9, @p10, @p11);
+SELECT [NoteId]
+FROM [Notes]
+WHERE @@ROWCOUNT = 1 AND [NoteId] = scope_identity();
+...  <= This seems OK...
+
+Microsoft.AspNetCore.Mvc.Infrastructure.ObjectResultExecutor: Information: Executing ObjectResult, writing value of type 'ContactsApp.Models.Contact'.
+Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware: Error: An unhandled exception has occurred while executing the request.
+System.Text.Json.JsonException: A possible object cycle was detected which is not supported. This can either be due to a cycle or if the object depth is larger than the maximum allowed depth of 32.
+   at System.Text.Json.ThrowHelper.ThrowInvalidOperationException_SerializerCycleDetected(Int32 maxDepth)
+   at System.Text.Json.JsonSerializer.Write(Utf8JsonWriter writer, Int32 originalWriterDepth, Int32 flushThreshold, JsonSerializerOptions options, WriteStack& state)
+   at System.Text.Json.JsonSerializer.WriteAsyncCore(Stream utf8Json, Object value, Type inputType, JsonSerializerOptions options, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter.WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
+   at Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter.WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
+   ...
+
+    - SQL Server Object Explorer > (localdb)\MSSQLLocalDB (SQL Server 13.0.4001) > Databases > ContactsDB >
+      <= "Contacts" and "Notes" tables both have the offending record
+         Contacts: Name= "Salacious Crumb", ContactId= 1005
+         Notes: Text= "Tesxt msg", NoteId= 1005 (?), ContactId= 1005 (OK)
+      CONCLUSIONS:
+      - "Contact" object serialized/deserialized correctly when passed in to ContactsController
+      - Data written to DB correctly
+        <= The problem *ISN'T* EF per se
+      - The error is occuring here, inside "CreatedAtAction()":
+        [HttpPost]
+        public async Task<ActionResult<Contact>> PostContact(Contact contact)
+        {
+            _context.Contacts.Add(contact);
+            await _context.SaveChangesAsync();
+
+            //return CreatedAtAction("GetContact", new { id = contact.ContactId }, contact);
+            return CreatedAtAction(nameof(GetContact), new { id = contact.ContactId }, contact);  // <-- 
+        }
+
+    - Postman > GET http://localhost:53561/api/Contacts >
+ {
+        "contactId": 1005,
+        "name": "Salacious Crumb",
+        "eMail": "sc@abc.com",
+        "phone1": null,
+        "phone2": null,
+        "address1": null,
+        "address2": null,
+        "city": null,
+        "state": null,
+        "zip": null,
+        "notes": null
+    }  <= "Notes" array *NOT* returned!!!!
+
+    - Output Window:
+SELECT [c].[ContactId], [c].[Address1], [c].[Address2], [c].[City], [c].[EMail], [c].[Name], [c].[Phone1], [c].[Phone2], [c].[State], [c].[Zip]
+FROM [Contacts] AS [c]
+      <= Simple "select from Contacts": ... no "join on Notes"
+
+* REFERENCES:
+  - Find/Create working example of "nested records"
+  - Relationships, navigation properties and foreign keys (EF):
+      https://docs.microsoft.com/en-us/ef/ef6/fundamentals/relationships
+      https://github.com/aspnet/EntityFramework.Docs/edit/master/samples/core/Saving/RelatedData/Sample.cs
+  - Loading Related Entities:
+      https://docs.microsoft.com/en-us/ef/ef6/querying/related-data
+  - Tutorial: Updated related data with EF in an ASP.Net MVC app
+      https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/updating-related-data-with-the-entity-framework-in-an-asp-net-mvc-application
+  - Fluent API in Entity Framework:
+      https://www.entityframeworktutorial.net/efcore/fluent-api-in-entity-framework-core.aspx
+  - Fluent API: Relationships:
+      https://docs.microsoft.com/en-us/ef/ef6/modeling/code-first/fluent/relationships
+
+* Model schemas:
+  - Current schema:
+    - Contact.cs:
+namespace ContactsApp.Models {
+    public class Contact {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ContactId { get; set; }
+        public string Name { get; set; }
+        public string EMail { get; set; }
+        public string Phone1 { get; set; }
+        public string Phone2 { get; set; }
+        public string Address1 { get; set; }
+        public string Address2 { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string Zip { get; set; }
+        public List<Note> Notes { get; set; }
+    }
+}
+    - Note.cs:
+namespace ContactsApp.Models {
+    public class Note {
+        public Note()
+        {
+            this.Date = DateTime.Now; // Default value: local "now"
+        }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int NoteId { get; set; }
+        public string Text { get; set; }
+        public DateTime Date { get; set; }
+        [ForeignKey("Contact")]
+        public int ContactId { get; set; }
+        public Contact Contact { get; set; }  <- "Contact" is probably our circular reference...
+    }
+}    
+
+  - EFSaving schema:
+     public class Blog {
+        public int BlogId { get; set; }
+        public string Url { get; set; }
+
+        public List<Post> Posts { get; set; }
+    }
+
+     public class Post {
+        public int PostId { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+
+        public int BlogId { get; set; }
+        public Blog Blog { get; set; }
+     }  <= Completely vanilla POCOs: no "embellishments" whatsoever... and no cross-references...
+
+* Changed Schema:
+  - MSVS: > SQL Explorer: DELETED ContactsDB
+    - Contact.cs: OK as-is
+    - Note.cs: COMMENTED OUT "Contact" reference: //public Contact Contact { get; set; }
+    - Nuget > PM Console >
+        Update-Database -Verbose
+    - Debugger > Run >
+
+  - Postman: POST  http://localhost:53561/api/Contacts
+{
+  "Name": "Salacious Crumb",
+  "EMail": "sc@abc.com",
+  "Notes": [
+    {"Text": "Text msg #1"},
+    {"Text": "Text msg #2"}
+  ]
+}
+    <= SUCCESS: HTTP 201 Created:
+{
+    "contactId": 1,
+    "name": "Salacious Crumb",
+    "eMail": "sc@abc.com",
+    "phone1": null,
+    "phone2": null,
+    "address1": null,
+    "address2": null,
+    "city": null,
+    "state": null,
+    "zip": null,
+    "notes": [
+        {
+            "noteId": 1,
+            "text": "Text msg #1",
+            "date": "2019-11-29T13:10:24.6595869-08:00",
+            "contactId": 1
+        },
+        {
+            "noteId": 2,
+            "text": "Text msg #2",
+            "date": "2019-11-29T13:10:24.6622829-08:00",
+            "contactId": 1
+        }
+    ]
+}
+
+===================================================================================================
+* NEXT PROBLEM:
+  - Integration tests: able to add "notes" when creating record...
+    ... but can't see notes when fetching record back (?!?)
+    ... and can't add notes on subsequent mod (?)
+
+  - Test "Update":
+    - SQL > truncate Notes; delete from Contacts; => OK
+    - MSVS > Bkpts Post, Put; PostNote, PutNote; Debug >
+    - Postman: GET  http://localhost:53561/api/Contacts
+      - Http 200 (OK), Json= []
+    - Postman: POST  http://localhost:53561/api/Contacts
+{
+  "name": "Test-Contact",
+  "eMail": "Test-Contact@abc.com",
+  "phone1": "111-222-3333",
+  "address1": "2001 Country Lane",
+  "city": "Los Angeles",
+  "state": "CA",
+  "zip": "90021",
+  "Notes":[
+    {"Text": "abc"},
+    {"Text": "def"},
+    {"Text": "ghi"}
+  ]
+}
+      - Http 201 (Created), Json= OK: completed record: contactId= 1005, NoteIDs= 1, 2, 3
+      - Console:
+SET NOCOUNT ON;
+INSERT INTO [Contacts] ([Address1], [Address2], [City], [EMail], [Name], [Phone1], [Phone2], [State], [Zip])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8);
+SELECT [ContactId]
+FROM [Contacts]
+WHERE @@ROWCOUNT = 1 AND [ContactId] = scope_identity();
+
+Microsoft.EntityFrameworkCore.Database.Command: Information: Executing DbCommand [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SET NOCOUNT ON;
+INSERT INTO [Notes] ([ContactId], [Date], [Text])
+VALUES (@p0, @p1, @p2);
+SELECT [NoteId]
+FROM [Notes]
+WHERE @@ROWCOUNT = 1 AND [NoteId] = scope_identity();
+
+Microsoft.EntityFrameworkCore.Database.Command: Information: Executing DbCommand [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SET NOCOUNT ON;
+INSERT INTO [Notes] ([ContactId], [Date], [Text])
+VALUES (@p0, @p1, @p2);
+SELECT [NoteId]
+FROM [Notes]
+WHERE @@ROWCOUNT = 1 AND [NoteId] = scope_identity();
+
+Microsoft.EntityFrameworkCore.Database.Command: Information: Executing DbCommand [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = DateTime2), @p2='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SET NOCOUNT ON;
+INSERT INTO [Notes] ([ContactId], [Date], [Text])
+VALUES (@p0, @p1, @p2);
+SELECT [NoteId]
+FROM [Notes]
+WHERE @@ROWCOUNT = 1 AND [NoteId] = scope_identity();
+  <= Perfect!
+
+    - Postman: PUT  http://localhost:53561/api/Contacts/1005
+{
+  "phone2": "999-999-9999",
+  "Notes":[ {"Text": "xyz"} ]
+}
+  <= Returns Http 400 (Bad Request)
+
+    - Postman: PUT  http://localhost:53561/api/Contacts/1005
+{
+  "ContactId": 1005,
+  "Phone2": "999-999-9999",
+  "Notes":[ {"Text": "xyz"} ]
+}
+      - Http 204 (No Content) => OK
+
+    - Console:
+Microsoft.EntityFrameworkCore.Database.Command: Information: Executing DbCommand [Parameters=[@p9='?' (DbType = Int32), @p0='?' (Size = 4000), @p1='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (Size = 4000), @p4='?' (Size = 4000), @p5='?' (Size = 4000), @p6='?' (Size = 4000), @p7='?' (Size = 4000), @p8='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SET NOCOUNT ON;
+UPDATE [Contacts] SET [Address1] = @p0, [Address2] = @p1, [City] = @p2, [EMail] = @p3, [Name] = @p4, [Phone1] = @p5, [Phone2] = @p6, [State] = @p7, [Zip] = @p8
+WHERE [ContactId] = @p9;
+SELECT @@ROWCOUNT;
+  <= Problem 1: will overwrite each field that ISN'T filled in with a "null"
+     Problem 2: makes no attempt to write ANYTHING to nested field...
+
+* SO Link:
+  - https://stackoverflow.com/questions/44118959/update-list-in-entity-framework-model
+      - Your collection property needs to be virtual if you want EF to automatically populate it:
+      - if you're using EF 6 or previous, you'll need to make the type of that property ICollection<>, rather than List<>
+      - However, this is what's called lazy-loading, and it's not ideal in most scenarios. 
+        Additionally, if you're using EF Core, it still won't work, because currently EF Core does not support lazy loading. 
+        The better method is to eagerly load the relationship. 
+        This is done by using Include in your LINQ query:
+          Application application = db.Applications.Include(m => 
+            m.ApplicationPayments).SingleOrDefault(m => m.Id == id);
+      <= Changed Contact.cs to "virtual ICollection":
+        public class Contact {
+           [Key]
+           [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+           public int ContactId { get; set; }
+           public string Name { get; set; }
+           public string EMail { get; set; }
+           public string Phone1 { get; set; }
+           public string Phone2 { get; set; }
+           public string Address1 { get; set; }
+           public string Address2 { get; set; }
+           public string City { get; set; }
+           public string State { get; set; }
+           public string Zip { get; set; }
+           //public List<Note> Notes { get; set; }  // POST new Contact + Notes OK, but fails otherwise
+           public virtual ICollection<Note> Notes { get; set; }
+       }
+
+ - MSVS > SQL Explorer >
+     DELETE ContactsDB
+
+   - PostMan: Postman: GET  http://localhost:53561/api/Contacts
+      - Http 200 (OK), Json= [] (OK)
+
+    - Postman: POST  http://localhost:53561/api/Contacts
+       {contact-with-notes}
+      - Http 201 (Created), Json= Contact-with-Notes; contactId=1, Notes[] ids= 1, 2, 3 (OK)
+
+   - PostMan: Postman: GET  http://localhost:53561/api/Contacts
+      - Http 200 (OK)
+        <= No-go: Get Contact info ... but "Notes" null...
+
+   - Console:
+SELECT [c].[ContactId], [c].[Address1], [c].[Address2], [c].[City], [c].[EMail], [c].[Name], [c].[Phone1], [c].[Phone2], [c].[State], [c].[Zip]
+FROM [Contacts] AS [c]
+     <= SQL still only queries "Contacts", not "Notes"...
+
+    - Postman: DELETE  http://localhost:53561/api/Contacts/1
+      - Http 200 (OK), json=
+{
+    "contactId": 1,
+    "name": "Test-Contact",
+    "eMail": "Test-Contact@abc.com",
+    "phone1": "111-222-3333",
+    "phone2": null,
+    "address1": "2001 Country Lane",
+    "address2": null,
+    "city": "Los Angeles",
+    "state": "CA",
+    "zip": "90021",
+    "notes": null
+}
+
+    - Postman: DELETE  http://localhost:53561/api/Contacts/1
+
+    - SQL Explorer:
+      - Contacts: EMPTY (OK)
+      - Notes: EMPTY (also OK)
+
+===================================================================================================
+* Introduction to Razor Pages in ASP.NET Core:
+  - Intro:
+      https://docs.microsoft.com/en-us/aspnet/core/razor-pages/index?view=aspnetcore-3.0
+  - Data Access >
+    - EF Core with Razor Pages > ... > Create a Complex data model > Read related Data > Update related data
+        https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-3.0&tabs=visual-studio
+        https://github.com/aspnet/AspNetCore.Docs/tree/master/aspnetcore/data/ef-rp/intro/samples
+    - EF Core with MVC > ... > Create a Complex data model > Read related Data > Update related data
+        https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/?view=aspnetcore-3.0
+        <= No corresponding "Getting Started" section or completed code download...
+      << Copied the whole AspNetCore.Docs Git repo: https://github.com/aspnet/AspNetCore.Docs, only 45MB; includes everything >>
+
+  - Imported C:\temp\temp\AspNetCore.Docs-master\aspnetcore\data\ef-mvc\intro\samples\cu-final
+    <= EF Core with MVC example...
+    - MSVS > Add Existing > Project => OK
+    - Nuget > Console > Default project= ContosoUniversity, Update-Database -Verbose => OK
+    - MSVS > Run 
+
+  - Example: Students > Details =>
+    - URL: http://localhost:44356/Students/Details/2
+    - Info: Name= Alonso Meredith, Enrollment date= 2012-09-01, Enrollments= {Calculus, Trig, Composition}
+    - Controllers/StudentsController.cs:
+        public async Task<IActionResult> Details(int? id) {
+          ...
+          var student = await _context.Students
+                .Include(s => s.Enrollments)
+                  .ThenInclude(e => e.Course)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.ID == id);
+                <= Eager loading ... but only in the "Details" page...
+
+   - Updated ContactsController.cs:
+        public async Task<ActionResult<Contact>> GetContact(int id) {
+          // var contact = await _context.Contacts.FindAsync(id);   Lazy-loading: fails to include related "Notes"
+          var contact = await _context.Contacts
+               .Include(c => c.Notes)
+               .AsNoTracking()
+               .FirstOrDefaultAsync(c => c.ContactId == id);
+          ...
+     - PostMan: POST http://localhost:53561/api/Contacts
+         <= New contact: ContactId= 2, NoteIds= 4, 5, 6
+
+     - Postman: GET http://localhost:53561/api/Contacts/1
+         <= Http 404 (Not found): there's no contact #1 in DB anymore
+
+     - Postman: GET http://localhost:53561/api/Contacts/2
+         <= HTTP 200: all notes fully populated!
+
+     <<OK: so "Include" helped "GET".  What about "Update"?>>
+
+===================================================================================================
+* Update related data:
+  - Contoso University > InstructorsController > 
+      [HttpPost]  // Example uses "POST" instead of "PUT"...
+      [ValidateAntiForgeryToken]
+      public async Task<IActionResult> Edit(int? id, string[] selectedCourses) {
+          ...
+          var instructorToUpdate = await _context.Instructors
+              .Include(i => i.OfficeAssignment)
+              .Include(i => i.CourseAssignments)
+                  .ThenInclude(i => i.Course)
+              .FirstOrDefaultAsync(m => m.ID == id);
+      
+          if (await TryUpdateModelAsync<Instructor>(instructorToUpdate, "",
+              i => i.FirstMidName, i => i.LastName, i => i.HireDate, i => i.OfficeAssignment)) {
+              if (String.IsNullOrWhiteSpace(instructorToUpdate.OfficeAssignment?.Location)) {
+                  instructorToUpdate.OfficeAssignment = null;
+              }
+              UpdateInstructorCourses(selectedCourses, instructorToUpdate);
+              try  {
+                  await _context.SaveChangesAsync();
+              }
+              catch (DbUpdateException /* ex */)  {
+              ...
+              return RedirectToAction(nameof(Index));
+          }
+          UpdateInstructorCourses(selectedCourses, instructorToUpdate);
+          PopulateAssignedCourseData(instructorToUpdate);
+          return View(instructorToUpdate);
+      }
+
+      private void UpdateInstructorCourses(string[] selectedCourses, Instructor instructorToUpdate) {
+          if (selectedCourses == null) {
+              instructorToUpdate.CourseAssignments = new List<CourseAssignment>();
+              return;
+          }
+
+          var selectedCoursesHS = new HashSet<string>(selectedCourses);
+          var instructorCourses = new HashSet<int>(
+            instructorToUpdate.CourseAssignments.Select(c => c.Course.CourseID));
+          foreach (var course in _context.Courses) {
+              if (selectedCoursesHS.Contains(course.CourseID.ToString())) {
+                  if (!instructorCourses.Contains(course.CourseID)) {
+                      instructorToUpdate.CourseAssignments.Add(new CourseAssignment { InstructorID = instructorToUpdate.ID, CourseID = course.CourseID });
+                  }
+              } else {
+                  if (instructorCourses.Contains(course.CourseID)){
+                      CourseAssignment courseToRemove = instructorToUpdate.CourseAssignments.FirstOrDefault(i => i.CourseID == course.CourseID);
+                      _context.Remove(courseToRemove);
+                  }
+              }
+          }
+      }
+
+  - CURRENT STATUS: Still no-go with "Update related data":
+    - "Create" works fine as-is
+      <= EF adds all "notes" in JSON, along with the "contact"
+    - "Delete" also works fine as-is
+      <= EF defaults to "cascading deletes" for all related tables with FK
+    - "Read details":
+      <= Needed "Include()"
+    - "Update"
+      <= Still TBD, even after trying to apply above with ContactsApp@PutContact()...
+
+===================================================================================================
+* Alternate approach:
+  https://stackoverflow.com/questions/42735368/updating-related-data-with-entity-framework-core
+    public override void Update(Group entity) {
+      // entity as it currently exists in the db
+      var groupToUpdate = DbContext.Groups.Include(c => c.Contacts)
+          .FirstOrDefault(g => g.Id == entity.Id);
+      // update properties on the parent
+      DbContext.Entry(groupToUpdate).CurrentValues.SetValues(entity);
+      // remove or update child collection items
+      var groupContacts = groupToUpdate.Contacts.ToList();
+      foreach (var groupContact in groupContacts) {
+          var contact = entity.Contacts.SingleOrDefault(i => i.ContactId == groupContact.ContactId);
+          if (contact != null)
+              DbContext.Entry(groupContact).CurrentValues.SetValues(contact);
+          else
+              DbContext.Remove(groupContact);
+      }
+      // add the new items
+      foreach (var contact in entity.Contacts) {
+          if (groupContacts.All(i => i.Id != contact.Id)) {
+              group.Contacts.Add(contact);
+          }
+      }
+      DbContext.SaveChanges();
+    }
+
+  - Modified code: Controller.cs:
+        PutContact(int id, Contact contact) {
+           ...
+           // Remove or update child collection items
+            var contactNotes = contactToUpdate.Notes;
+            foreach (var noteToUpdate in contactNotes) {
+                var note = contact.Notes.SingleOrDefault(n => n.NoteId == n.NoteId);  <-- dies here
+                if (note != null) {
+                    _context.Entry(noteToUpdate).CurrentValues.SetValues(note);
+                } else {
+                    _context.Remove(noteToUpdate);
+                }
+            }
+
+  - Stack traceback:
+System.InvalidOperationException: Sequence contains more than one matching element
+   at System.Linq.ThrowHelper.ThrowMoreThanOneMatchException()
+   at System.Linq.Enumerable.SingleOrDefault[TSource](IEnumerable`1 source, Func`2 predicate)
+   at ContactsApp.Controllers.ContactsController.PutContact(Int32 id, Contact contact) in C:\paul\proj\ContactsApp\dotnetcore-rest\ContactsApp\Controllers\ContactsController.cs:line 90
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   ...
+   <= Fixed code, eliminate Async that wasn't in the original example
+
+  - NEXT ERROR:
+    - Controller.cs:
+        public async Task<IActionResult> PutContact(int id, Contact contact) {
+            ...
+            // Fetch entity as it exists in the DB...
+            var contactToUpdate =  _context.Contacts
+                .Include(c => c.Notes)
+                .FirstOrDefault(c => c.ContactId == id);
+
+            // Update properties of the parent
+            _context.Entry(contactToUpdate).CurrentValues.SetValues(contact);
+
+            // Remove or update child collection items
+            var contactNotes = contactToUpdate.Notes;
+            foreach (var contactNote in contactNotes) {  <-- Now dies here: "Collection was modified after the enumerator was instantiated..."
+                // ... Fetch corresponding note from "contact" update
+                var note = contact.Notes.SingleOrDefault(n => n.NoteId == contactNote.NoteId);
+                if (note != null) {
+                    // .. Present in "contact" update: write the updated "note" value to DB
+                    _context.Entry(contactNote).CurrentValues.SetValues(note);
+                } else {
+                    // .. Not present in "contact" update: delete this note from DB
+                    _context.Remove(contactNote);
+                ...
+
+    - Stack trace:
+System.InvalidOperationException: Collection was modified after the enumerator was instantiated.
+   at System.Collections.Generic.HashSet`1.Enumerator.MoveNext()
+   at ContactsApp.Controllers.ContactsController.PutContact(Int32 id, Contact contact) in C:\paul\proj\ContactsApp\dotnetcore-rest\ContactsApp\Controllers\ContactsController.cs:line 88
+
+    - WORKAROUND: Cloned the list:
+        public async Task<IActionResult> PutContact(int id, Contact contact) {
+            ...
+            List<Note> contactNotesClone = new List<Note>();
+            foreach (Note n in contactToUpdate.Notes)
+                contactNotesClone.Add(n);
+            foreach (var contactNote in contactNotesClone) {
+                ...
+                <= This worked ... 
+                   ... right up through "await _context.SaveChangesAsync();"...
+  - NEXT ERROR:
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while updating the entries. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The UPDATE statement conflicted with the FOREIGN KEY constraint "FK_Notes_Contacts_ContactId". The conflict occurred in database "ContactsDB", table "dbo.Contacts", column 'ContactId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreResults(Boolean& moreResults)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryNextResult(Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.<>c__DisplayClass192_0.<NextResultAsync>b__1(Task t)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeRetryable[T](Func`2 moreFunc, TaskCompletionSource`1 source, IDisposable objectToDispose)
+--- End of stack trace from previous location where exception was thrown ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:2f1356ff-dc29-4e09-ad53-8df5623ce92d
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   <= Sigh...
+
+    - Changed Postman: Added ContactId to each note:
+{
+  "ContactId": 3,
+  "Name": "Test-Contact",
+  "EMail": "Test-Contact@abc.com",
+  "Phone1": "111-222-3333",
+  "Phone2": "999-999-9999",
+  "Address1": "2001 Country Lane",
+  "City": "Los Angeles",
+  "State": "CA",
+  "Zip": "90021",
+  "Notes":[
+    {"NoteId": 7, "ContactId": 3, "Text": "abc"},
+    {"NoteId": 8, "ContactId": 3, "Text": "def"},
+    {"NoteId": 9, "ContactId": 3, "Text": "xyz"}
+  ]
+}
+  <= SUCCESS!  It WORKED!
+
+    - Postman: GET  http://localhost:53561/api/Contacts/3
+      - Http response= 200 (OK), json=
+{
+    "contactId": 3,
+    "name": "Test-Contact",
+    "eMail": "Test-Contact@abc.com",
+    "phone1": "111-222-3333",
+    "phone2": "999-999-9999",
+    "address1": "2001 Country Lane",
+    "address2": null,
+    "city": "Los Angeles",
+    "state": "CA",
+    "zip": "90021",
+    "notes": [
+        {
+            "noteId": 7,
+            "text": "abc",
+            "date": "2019-12-01T23:26:36.3616246",
+            "contactId": 3
+        },
+        {
+            "noteId": 8,
+            "text": "def",
+            "date": "2019-12-01T23:26:36.3623565",
+            "contactId": 3
+        },
+        {
+            "noteId": 9,
+            "text": "xyz",
+            "date": "2019-12-01T23:26:36.3624499",
+            "contactId": 3
+        }
+    ]
+}  <= Value changed to "xyz"
+
+
+
+

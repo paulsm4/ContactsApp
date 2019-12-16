@@ -1,0 +1,72 @@
+<div class="container" style="margin-top: 20px;">
+  <h1>Edit {{contact.name}}:</h1>
+  <form class="form-horizontal" >
+    <div class="form-group row">
+      <label for="name" class="control-label col-sm-2">Contact Name</label>
+      <input [(ngModel)]="contact.name" type="text" name="name" class="col-form-control col-sm-6" id="name">
+    </div>
+    <div class="form-group row">
+      <label for="email" class="control-label col-sm-2">Contact Email</label>
+      <input [(ngModel)]="contact.eMail" type="text" name="eMail" class="col-form-control col-sm-6" id="eMail" placeholder="Enter your email">
+    </div>
+
+    <div class="form-group row">
+      <label for="address1" class="control-label col-sm-2">Address</label>
+      <input [(ngModel)]="contact.address1" type="text" name="address1" class="form-control col-sm-6" id="address1"  placeholder="Enter your Address">
+    </div>
+
+    <div class="form-group row">
+      <label for="address1" class="control-label col-sm-2">Address 2</label>&nbsp;
+      <input [(ngModel)]="contact.address2" type="text" name="address2" class="form-control col-sm-6" id="address2" placeholder="Enter your Address (Line 2)">
+    </div>
+
+    <div class="form-group row">
+      <label for="city" class="control-label col-sm-2">City</label>&nbsp;
+      <input [(ngModel)]="contact.city" type="text" name="city" class="form-control col-sm-6" id="city" placeholder="City">
+    </div>
+
+    <div class="form-group row">
+      <label for="state" class="control-label col-sm-2">State</label>&nbsp;
+      <input [(ngModel)]="contact.state" type="text" name="state" class="form-control col-sm-2" id="state" placeholder="State">
+      <label for="zip" class="control-label col-sm-1">Zip Code</label>&nbsp;
+      <input [(ngModel)]="contact.zip" type="text" name="zip" class="form-control col-sm-3" id="zip" placeholder="Zip">
+    </div>
+
+    <div class="form-group row">
+      <label for="phone1" class="control-label col-sm-2">Primary Phone</label>&nbsp;
+      <input [(ngModel)]="contact.phone1" type="text" name="phone1" class="form-control col-sm-2" id="phone1" placeholder="Enter phone#">
+      <label for="phone2" class="control-label col-sm-2">Alternate Phone</label>&nbsp;
+      <input [(ngModel)]="contact.phone2" type="text" name="phone2" class="form-control col-sm-2" id="phone2" placeholder="Enter alt. phone#">
+    </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table border="0" cellpadding="2" width="100%">
+          <thead>
+            <tr>
+              <th>Note#</th><th>Date</th><th>Text</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let note of contact.notes; let idx = index">
+              <td>{{ note.noteId }}</td>
+              <td>{{ note.date | date:'short' }}</td>
+              <td><input [(ngModel)]="note.text" type="text"  [ngModelOptions]="{standalone: true}" class="form-control"></td>
+              <td>
+                <button class="btn btn-primary btn-sm" (click)="editNote()"> Edit </button>&nbsp;
+                <button class="btn btn-primary btn-sm " (click)="deleteNote(note)"> Delete </button>
+              </td>
+            </tr>
+            <tr>
+              <td><label for="newNote" class="control-label">New Note</label></td>
+              <td colspan="2"><input [(ngModel)]="newNote" type="text" name="newNote" class="form-control" id="newNote"></td>
+              <td><button class="btn btn-primary btn-sm" (click)="addNote()"> Add Note </button></td>
+            </tr>
+          </tbody>
+          </table>
+        </div>
+      </div>
+    </form>
+    <br/>
+  <button class="btn btn-primary" (click)="updateContact()">Update contact</button>
+</div>
