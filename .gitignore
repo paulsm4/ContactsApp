@@ -18,6 +18,7 @@ App_Data/
 # Eclipse artifacts
 .metadata/
 .settings/
+.dbeaver/
 bin/
 build/
 target/

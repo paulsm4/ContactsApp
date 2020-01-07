@@ -1,4 +1,4 @@
-* Angular client:
+﻿* Angular client:
   - check s/w:
       npm -g update; npm --version: 6.13.2
       node --version: 10.13.0
@@ -413,14 +413,18 @@ https://www.smashingmagazine.com/2019/02/angular-application-bootstrap/
      ...
       "architect": {
         "build": {
-          ...
+         ...
            "styles": [
               "src/styles.css",
                "node_modules/bootstrap/dist/css/bootstrap.min.css"
-              ...
+            ...
+           "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js"
+           ]
 
     - code .
-      list-contacts/list-contants.component.ts:
+      list-contacts/list-contacts.component.ts:
       ----------------------------------------
 @Component({
   selector: 'app-list-contacts',
