@@ -1,4 +1,4 @@
-* Struts REST API
+﻿Get* Struts REST API
   - References:
       https://struts.apache.org/plugins/rest/
       https://www.baeldung.com/struts-2-intro
@@ -101,51 +101,51 @@
   <packaging>war</packaging>
   ...
   <properties>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<struts2.version>2.5.22</struts2.version>
-    <hibernate.version>5.4.0.Final</hibernate.version>	
-  	<h2.version>1.4.197</h2.version>
-  	<log4j2.version>2.12.1</log4j2.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <struts2.version>2.5.22</struts2.version>
+    <hibernate.version>5.4.0.Final</hibernate.version>  
+    <h2.version>1.4.197</h2.version>
+    <log4j2.version>2.12.1</log4j2.version>
     <maven-war-plugin.version>3.2.2</maven-war-plugin.version>
     <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     ...
   <dependencies>
-	<dependency>
-	    <groupId>org.apache.struts</groupId>
-	    <artifactId>struts2-core</artifactId>
-	    <version>${struts2.version}</version>
+    <dependency>
+        <groupId>org.apache.struts</groupId>
+        <artifactId>struts2-core</artifactId>
+        <version>${struts2.version}</version>
         ...
-	<dependency>
-    	<groupId>org.apache.struts</groupId>
-    	<artifactId>struts2-convention-plugin</artifactId>
+    <dependency>
+        <groupId>org.apache.struts</groupId>
+        <artifactId>struts2-convention-plugin</artifactId>
         ...
-	<dependency>
-    	<groupId>org.apache.struts</groupId>
-    	<artifactId>struts2-rest-plugin</artifactId>
+    <dependency>
+        <groupId>org.apache.struts</groupId>
+        <artifactId>struts2-rest-plugin</artifactId>
         ...
-	<dependency>
-    	<groupId>com.h2database</groupId>
-    	<artifactId>h2</artifactId>
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
         ...
-	<dependency>
-    	<groupId>org.apache.logging.log4j</groupId>
-    	<artifactId>log4j-core</artifactId>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
         ...
-	<dependency>
-    	<groupId>org.apache.logging.log4j</groupId>
-    	<artifactId>log4j-api</artifactId>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
         ...
-	<dependency>
-    	<groupId>com.h2database</groupId>
-    	<artifactId>h2</artifactId>
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
     <= See https://mvnrepository.com/ for current versions of struts2-convention-plugin, struts2-rest-plugin, h2, junit
        Note: did *NOT* restrict h2 to "scope test"
         ...
-  	<dependency>
-  		<groupId>org.hibernate</groupId>
-  		<artifactId>hibernate-core</artifactId>
+    <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-core</artifactId>
     <= Persistence APIs and implementation
         ...
     <dependency>
@@ -193,7 +193,7 @@
        com.example.contactsapp.controllers, ContactsController
           public class ContactsController implements ModelDriven<Contact> { ... }
           @Override
-	      public Contact getModel() { ... }
+          public Contact getModel() { ... }
        com.example.contactsapp.repositories, ContactsRepository
           public interface ContactsRepository { ... }
        com.example.contactsapp.repositories, ContactsRepositoryImpl
@@ -203,8 +203,8 @@
       -----------------------------------
         <?xml version="1.0" encoding="UTF-8" ?>
         <!DOCTYPE struts PUBLIC
-        	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
-        	"http://struts.apache.org/dtds/struts-2.3.dtd">
+            "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+            "http://struts.apache.org/dtds/struts-2.3.dtd">
         <struts>
             <constant name="struts.convention.action.suffix" value="Controller"/>
             <constant name="struts.convention.action.mapAllMatches" value="true"/>
@@ -221,8 +221,8 @@
                 <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
             </filter>
           <filter-mapping>
-        	<filter-name>struts2</filter-name>
-        	<url-pattern>/*</url-pattern>
+            <filter-name>struts2</filter-name>
+            <url-pattern>/*</url-pattern>
           </filter-mapping>
         </web-app>
           <= NOTE: 
@@ -246,9 +246,9 @@ https://thoughts-on-java.org/implementing-the-repository-pattern-with-jpa-and-hi
     @Table(name = "contacts")
     public class Contact {
     
-    	@Id
-    	@GeneratedValue(strategy=GenerationType.AUTO)
-    	private int contactId;
+        @Id
+        @GeneratedValue(strategy=GenerationType.AUTO)
+        private int contactId;
         private String name;
         private String email;
         private String phone1;
@@ -259,8 +259,8 @@ https://thoughts-on-java.org/implementing-the-repository-pattern-with-jpa-and-hi
         private String state;
         private String zip;
         @Column
-    	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    	@JoinColumn(name="contactId")
+        @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+        @JoinColumn(name="contactId")
         private List<Note> notes;
         ... <= Added getters/setters
                Note @OneToMany, @JoinColumn annotations for "Notes" table
@@ -270,29 +270,29 @@ https://thoughts-on-java.org/implementing-the-repository-pattern-with-jpa-and-hi
     Entity
     @Table(name = "notes")
     public class Note {
-    	@Id
-    	@GeneratedValue(strategy=GenerationType.AUTO)
-    	private int noteId;
+        @Id
+        @GeneratedValue(strategy=GenerationType.AUTO)
+        private int noteId;
         private String text;
         private Date date;
-    	private int contactId;
+        private int contactId;
     ... <= Added getters/setters
 
   - pom.xml:
     -------
     <properties>
-      <hibernate.version>5.4.10.Final</hibernate.version>	
-    	<h2.version>1.4.200</h2.version>
+      <hibernate.version>5.4.10.Final</hibernate.version>   
+        <h2.version>1.4.200</h2.version>
       ...
-	  <dependency>
-      	<groupId>com.h2database</groupId>
-      	<artifactId>h2</artifactId>
-      	<version>${h2.version}</version>
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${h2.version}</version>
           ...
-    	<dependency>
-    		<groupId>org.hibernate</groupId>
-    		<artifactId>hibernate-core</artifactId>
-    		<version>${hibernate.version}</version>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
           ...
       <= NOTE: "hibernate-entitymanager" is deprecated; use hibernate-core instead
 
@@ -330,92 +330,92 @@ https://thoughts-on-java.org/implementing-the-repository-pattern-with-jpa-and-hi
   - ContactsRepository.java:
     -----------------------
     public interface ContactsRepository {
-	  public List<Contact> getContacts();
-	  public Contact getContact(int id);
-	  public int addContact(Contact contact);
-	  public void deleteContact(int id);
-	  public void updateContact(Contact contact);
+      public List<Contact> getContacts();
+      public Contact getContact(int id);
+      public int addContact(Contact contact);
+      public void deleteContact(int id);
+      public void updateContact(Contact contact);
    }
 
   - ContactsRepositoryImpl.java (initial draft):
     -------------------------------------------
 public class ContactsRepositoryImpl implements ContactsRepository {
-	private static final String PERSISTENCE_UNIT = "ContactsApp_JPA";
-	private EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
-	
-	public List<Contact> getContacts() {
-		EntityManager em = null;
-		List<Contact> contacts = null;
-		try {
-			em = emf.createEntityManager();
-			em.getTransaction().begin();
-			Query query = em.createQuery("FROM Contact");
-			contacts = (List<Contact>)query.getResultList();
-			em.getTransaction().commit();
-		} finally {
-			if (em != null)
-				em.close();
-		}
-		return contacts;
-	}
+    private static final String PERSISTENCE_UNIT = "ContactsApp_JPA";
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
+    
+    public List<Contact> getContacts() {
+        EntityManager em = null;
+        List<Contact> contacts = null;
+        try {
+            em = emf.createEntityManager();
+            em.getTransaction().begin();
+            Query query = em.createQuery("FROM Contact");
+            contacts = (List<Contact>)query.getResultList();
+            em.getTransaction().commit();
+        } finally {
+            if (em != null)
+                em.close();
+        }
+        return contacts;
+    }
 
-	public int addContact(Contact contact) {
-		EntityManager em = null;
-		Contact newContact = null;
-		try {
-			em = emf.createEntityManager();
-			em.getTransaction().begin();
-			em.persist(contact);
-			em.getTransaction().commit();
-			return contact.getContactId();
-		} finally {
-			if (em != null)
-				em.close();
-		}
-	}
+    public int addContact(Contact contact) {
+        EntityManager em = null;
+        Contact newContact = null;
+        try {
+            em = emf.createEntityManager();
+            em.getTransaction().begin();
+            em.persist(contact);
+            em.getTransaction().commit();
+            return contact.getContactId();
+        } finally {
+            if (em != null)
+                em.close();
+        }
+    }
     ...
 
   - ContactsRepositoryImpl.java (standalone test scaffolding):
     ---------------------------------------------------------
-	public static void main(String[] args) {
-		try {
-			// Connect to database
-			ContactsRepository contactsRepository = new ContactsRepositoryImpl();
+    public static void main(String[] args) {
+        try {
+            // Connect to database
+            ContactsRepository contactsRepository = new ContactsRepositoryImpl();
 
-			// Query records
-			List<Contact> contacts = contactsRepository.getContacts();
-			System.out.println("getContacts: ct=" + contacts.size());
+            // Query records
+            List<Contact> contacts = contactsRepository.getContacts();
+            System.out.println("getContacts: ct=" + contacts.size());
 
-			// Add new record
-			Contact newContact = new Contact();
-			newContact.setName("Mickey Mouse");
-			newContact.setEmail("mm@abc.com");
-			int newId = contactsRepository.addContact(newContact);
-			System.out.println("addContact(), new contactId=" + newId);
-			contacts = contactsRepository.getContacts();
-			System.out.println("getContacts: ct=" + contacts.size());
+            // Add new record
+            Contact newContact = new Contact();
+            newContact.setName("Mickey Mouse");
+            newContact.setEmail("mm@abc.com");
+            int newId = contactsRepository.addContact(newContact);
+            System.out.println("addContact(), new contactId=" + newId);
+            contacts = contactsRepository.getContacts();
+            System.out.println("getContacts: ct=" + contacts.size());
 
-			// Update record
-			newContact.setCity("Emerald City");
-			newContact.setState("Oz");
-			newContact.setZip("00000");
+            // Update record
+            newContact.setCity("Emerald City");
+            newContact.setState("Oz");
+            newContact.setZip("00000");
             ...
-			// Fetch record
-			Contact updatedContact = contactsRepository.getContact(newId);
-			System.out.println("getContact(" + newId + "): " + updatedContact.toString());
+            // Fetch record
+            Contact updatedContact = contactsRepository.getContact(newId);
+            System.out.println("getContact(" + newId + "): " + updatedContact.toString());
 
-			// Delete record
-			contactsRepository.deleteContact(newId);
-			contacts = contactsRepository.getContacts();
-			System.out.println("getContacts: ct=" + contacts.size());
-			for (Contact contact: contacts) {
-				System.out.println(contact.toString());
-			}
+            // Delete record
+            contactsRepository.deleteContact(newId);
+            contacts = contactsRepository.getContacts();
+            System.out.println("getContacts: ct=" + contacts.size());
+            for (Contact contact: contacts) {
+                System.out.println(contact.toString());
+            }
 
-		} catch (Exception e) {
-			System.out.println("ERROR: " + e.getMessage());
-			e.printStackTrace();
-		}
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }  <= Verified OK
 
@@ -436,30 +436,30 @@ public class ContactsRepositoryImpl implements ContactsRepository {
  */
 public class ContactsController implements ModelDriven<Object> {
 
-	private static final long serialVersionUID = 1L;
-	private String id;
-	private Object model;
-	private ContactsRepository contactsRepository = new ContactsRepositoryImpl();
+    private static final long serialVersionUID = 1L;
+    private String id;
+    private Object model;
+    private ContactsRepository contactsRepository = new ContactsRepositoryImpl();
 
-	@Override
-	public Object getModel() {
-		return model;
-	}
-	
+    @Override
+    public Object getModel() {
+        return model;
+    }
+    
     public HttpHeaders index () {
         model = contactsRepository.getContacts();
         return new DefaultHttpHeaders("index").disableCaching();
     }
     
     public HttpHeaders show() {
-    	int contactId = Integer.parseInt(id);
+        int contactId = Integer.parseInt(id);
         model = (Object)contactsRepository.getContact(contactId);
         return new DefaultHttpHeaders("show");
     }
     
     public HttpHeaders create() {
-    	Contact contact = (Contact)model;
-    	contactsRepository.addContact(contact);
+        Contact contact = (Contact)model;
+        contactsRepository.addContact(contact);
         return new DefaultHttpHeaders("success");
     }
     ...
@@ -490,8 +490,8 @@ Projects
              +-- AddContactReq   // POST Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json
              |                      Request body=
              |                        {
-             |                        	"name":"Jason Bourne",
-             |                        	"email":"jb@abc.com"
+             |                          "name":"Jason Bourne",
+             |                          "email":"jb@abc.com"
              |                        }
              +-- GetContactsReq   // GET Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json
        <= Saved to $PROJ/ContactsApp/struts-rest/soapui/
@@ -555,20 +555,20 @@ pom.xml:
 an 05, 2020 4:09:06 PM org.apache.catalina.startup.ContextConfig processAnnotationsJar
 SEVERE: Unable to process Jar entry [module-info.class] from Jar [file:/C:/Users/paulsm/eclipse-workspace5/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ContactsApp/WEB-INF/lib/stax-ex-1.8.1.jar] for annotations
 org.apache.tomcat.util.bcel.classfile.ClassFormatException: Invalid byte tag in constant pool: 19
-	at org.apache.tomcat.util.bcel.classfile.Constant.readConstant(Constant.java:97)
-	at org.apache.tomcat.util.bcel.classfile.ConstantPool.<init>(ConstantPool.java:55)
+    at org.apache.tomcat.util.bcel.classfile.Constant.readConstant(Constant.java:97)
+    at org.apache.tomcat.util.bcel.classfile.ConstantPool.<init>(ConstantPool.java:55)
         ...
 Jan 05, 2020 4:09:07 PM org.apache.catalina.startup.ContextConfig processAnnotationsJar
 SEVERE: Unable to process Jar entry [module-info.class] from Jar [file:/C:/Users/paulsm/eclipse-workspace5/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ContactsApp/WEB-INF/lib/istack-commons-runtime-3.0.8.jar] for annotations
 org.apache.tomcat.util.bcel.classfile.ClassFormatException: Invalid byte tag in constant pool: 19
-	at org.apache.tomcat.util.bcel.classfile.Constant.readConstant(Constant.java:97)
-	at org.apache.tomcat.util.bcel.classfile.ConstantPool.<init>(ConstantPool.java:55)
+    at org.apache.tomcat.util.bcel.classfile.Constant.readConstant(Constant.java:97)
+    at org.apache.tomcat.util.bcel.classfile.ConstantPool.<init>(ConstantPool.java:55)
         ...
 Jan 05, 2020 4:09:07 PM org.apache.catalina.startup.ContextConfig processAnnotationsJar
 SEVERE: Unable to process Jar entry [module-info.class] from Jar [file:/C:/Users/paulsm/eclipse-workspace5/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ContactsApp/WEB-INF/lib/txw2-2.3.2.jar] for annotations
 org.apache.tomcat.util.bcel.classfile.ClassFormatException: Invalid byte tag in constant pool: 19
-	at org.apache.tomcat.util.bcel.classfile.Constant.readConstant(Constant.java:97)
-	at org.apache.tomcat.util.bcel.classfile.ConstantPool.<init>(ConstantPool.java:55)
+    at org.apache.tomcat.util.bcel.classfile.Constant.readConstant(Constant.java:97)
+    at org.apache.tomcat.util.bcel.classfile.ConstantPool.<init>(ConstantPool.java:55)
         ...
      <<Tried many things.  Finally wound up:
        1. Upgrading MSI to Tomcat9 (vs. Tomcat 8)
@@ -590,3 +590,99 @@ jackson-databind-2.10.1.jar        jackson-databind-2.10.0.jar
   - Try EclipseLink (vs. H2) DB?
   - Try "vanilla" struts2/struts.xml (vs. struts2-rest-plugin)?
   - Other?
+
+===================================================================================================
+  
+* Double-checked Strut2 example code:
+  - http://struts.apache.org/download.cgi#struts2316-SNAPSHOT >
+      Example Applications > https://www-us.apache.org/dist/struts/2.5.22/struts-2.5.22-apps.zip
+      
+  - Explicitly defined controller methods in struts.xml:
+    - struts2-rest-showcase-war > WEB-INF > classes > stuts.xml >
+        <!DOCTYPE struts PUBLIC
+            "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+            "http://struts.apache.org/dtds/struts-2.5.dtd">
+           ...
+           <package name="contacts" extends="rest-default">
+               <global-allowed-methods>index,show,create,update,destroy,deleteConfirm</global-allowed-methods>
+           </package>
+        <= Added this to my struts.xml
+           Also needed to change schema from Struts 2.3 => Struts 2.5
+
+  - Modified controller to support either "single record" or "list":
+    - ContactsController.java:
+      -----------------------
+      public class ContactsController implements ModelDriven<Object> {
+          ....
+          private String id;
+          private Contact model = new Contact();
+          private Collection<Contact> list;
+          private ContactsRepository contactsRepository = new ContactsRepositoryImpl();
+          ....
+          @Override
+          public Object getModel() {
+              return (list != null ? list : model);  // <-- return either single record, or list
+          }
+          ...
+          public HttpHeaders index () {
+              log.debug("Reading all contacts...");
+              list = contactsRepository.getContacts();  // <-- Fetch list
+              return new DefaultHttpHeaders("index").disableCaching();
+          ...
+          public HttpHeaders show() {
+              log.debug("Reading contact(" + id + ")...");
+              int contactId = Integer.parseInt(id);
+              model = (Contact)contactsRepository.getContact(contactId);  // <-- Fetch item
+              return new DefaultHttpHeaders("show");
+           ...
+           
+  - SoapUI > AddContact > AddcontactRequest >
+      POST Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json, Body=
+        {
+            "name": "Sy Snootles",
+            "email": "ss@abc.com",
+            "phone1": "111-111-1111",
+            "phone2": null,
+            "address1": "1 Yellow Brick Road",
+            "address2": null,
+            "city": "Emerald City",
+            "state": "Oz",
+            "zip": "00000",
+            "notes": null
+        }
+        <= Successfully added new contact
+
+  - Current status, both Postman and SoapUI:
+    - GET Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json: OK
+
+    - POST Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json + JSON body: OK
+
+    - PUT Endpoint= http://localhost:8080, Resource= http://localhost:8080, + JSON body:
+      <= Successfully calls ContactsController.create() and correctly creates the new "Contact" in the database:
+    19:46:05.361 [http-nio-8080-exec-3] DEBUG com.opensymphony.xwork2.validator.ValidationInterceptor - Validating /contacts with method update.
+    19:46:05.393 [http-nio-8080-exec-3] DEBUG com.opensymphony.xwork2.DefaultActionInvocation - Executing action method = update
+    19:46:05.398 [http-nio-8080-exec-3] DEBUG com.opensymphony.xwork2.ognl.SecurityMemberAccess - Checking access for [target: com.example.contactsapp.controllers.ContactsController@7e69160c, member: public java.lang.String com.example.contactsapp.controllers.ContactsController.update(), property: null]
+    19:46:07.862 [http-nio-8080-exec-3] DEBUG com.example.contactsapp.controllers.ContactsController - Updating existing contact(97)...
+
+      ... but it then fails on "return":
+    19:46:11.380 [http-nio-8080-exec-3] WARN  org.apache.struts2.dispatcher.Dispatcher - Could not find action or result: /StrutsContactsApp/contacts/97
+    com.opensymphony.xwork2.config.ConfigurationException: : NNo result defined for action com.example.contactsapp.controllers.ContactsController and result update
+    	at org.apache.struts2.rest.RestActionInvocation.findResult(RestActionInvocation.java:283) ~[struts2-rest-plugin-2.5.22.jar:2.5.22]
+    	at org.apache.struts2.rest.RestActionInvocation.executeResult(RestActionInvocation.java:225) ~[struts2-rest-plugin-2.5.22.jar:2.5.22]
+    	at org.apache.struts2.rest.RestActionInvocation.processResult(RestActionInvocation.java:189) ~[struts2-rest-plugin-2.5.22.jar:2.5.22]
+    	at org.apache.struts2.rest.RestActionInvocation.invoke(RestActionInvocation.java:137) ~[struts2-rest-plugin-2.5.22.jar:2.5.22]
+    	at com.opensymphony.xwork2.DefaultActionProxy.execute(DefaultActionProxy.java:157) ~[struts2-core-2.5.22.jar:2.5.22]
+        ...
+    - Postman > DELETE > http://localhost:8080/StrutsContactsApp/contacts/97
+        <= Status 405 – Method Not Allowed; no console.log
+
+    <<Tried many things: all no-go>>   
+    
+  - TBD: 
+    - Save current
+    - New Git branch
+    - Rewrite for a) "vanilla" Struts2, b) "vanilla" Hibernate, c) EclipseL
+
+  - Git update:
+        
+  
