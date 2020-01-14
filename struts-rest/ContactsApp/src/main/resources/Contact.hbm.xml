@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.example.contactsapp.models.Contact" table="contacts" catalog="app">
+        <id name="contactId" type="java.lang.Integer">
+            <column name="contactId" />
+            <generator class="identity" />
+        </id>
+        <property name="name" type="java.lang.String">
+            <column name="name" length="40"/>
+        </property>
+        <property name="email" type="string">
+            <column name="email" length="40"/>
+        </property>
+        <property name="phone1" type="string">
+            <column name="phone1" length="20"/>
+        </property>
+        <property name="phone2" type="string">
+            <column name="phone2" length="20"/>
+        </property>
+        <property name="address1" type="string">
+            <column name="address1" length="40"/>
+        </property>
+        <property name="address2" type="string">
+            <column name="address2" length="40"/>
+        </property>
+        <property name="city" type="string">
+            <column name="city" length="20"/>
+        </property>
+        <property name="state" type="string">
+            <column name="state" length="20"/>
+        </property>
+        <property name="zip" type="string">
+            <column name="zip" length="10"/>
+        </property>
+        <set name="notes" table="notes" inverse="true" lazy="true" fetch="select">
+            <key column="contactId" not-null="true" />
+            <one-to-many class="com.example.contactsapp.models.Note" />
+        </set>
+    </class>        
+</hibernate-mapping>

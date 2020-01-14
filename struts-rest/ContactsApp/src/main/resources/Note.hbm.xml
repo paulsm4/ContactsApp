@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.example.contactsapp.models.Note" table="notes" catalog="app">
+        <id name="noteId" type="java.lang.Integer">
+            <column name="noteId" />
+            <generator class="identity" />
+        </id>
+        <property name="text" type="string">
+            <column name="text" length="80"/>
+        </property>
+        <property name="date" type="date">
+            <column name="date"/>
+        </property>
+    </class>
+</hibernate-mapping>

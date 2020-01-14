@@ -3,13 +3,16 @@
         "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
         "http://struts.apache.org/dtds/struts-2.5.dtd">
 <struts>
-    <constant name="struts.mapper.class" value="rest" />
-    <constant name="struts.convention.action.suffix" value="Controller"/>
-    <constant name="struts.convention.action.mapAllMatches" value="true"/>
-    <constant name="struts.convention.default.parent.package" value="rest-default"/>
-    <constant name="struts.convention.package.locators" value="controllers"/>
-
-    <package name="contacts" extends="rest-default">
-        <global-allowed-methods>index,show,create,update,destroy,deleteConfirm</global-allowed-methods>
-    </package>
-</struts>   
+   <constant name = "struts.devMode" value = "true" />
+   <package name = "default" extends = "json-default">
+      <action name = "getContacts" 
+         class = "com.example.contactsapp.actions.ContactsAction" 
+         method = "getContacts">
+         <result name = "success" type="json">
+             <param name="noCache">true</param>
+             <param name="excludeNullProperties">true</param>
+             <param name="root">jsonString</param>
+         </result>
+      </action>
+   </package>
+</struts>

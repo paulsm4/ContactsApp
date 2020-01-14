@@ -1,154 +1,145 @@
 package com.example.contactsapp.repositories;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import com.example.contactsapp.models.Contact;
 import com.example.contactsapp.models.Note;
+import com.example.contactsapp.util.HibernateUtil;
 
 public class ContactsRepositoryImpl implements ContactsRepository {
-	private static final String PERSISTENCE_UNIT = "ContactsApp_JPA";
-	private EntityManagerFactory emf;
 
-	public ContactsRepositoryImpl() {
-		emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
+	public void shutdown () {
+		HibernateUtil.shutdown ();
 	}
-
+	
+	@Override
 	public List<Contact> getContacts() {
-		EntityManager em = null;
-		List<Contact> contacts = null;
-		try {
-			em = emf.createEntityManager();
-			em.getTransaction().begin();
-			Query query = em.createQuery("FROM Contact");
-			contacts = (List<Contact>) query.getResultList();
-			em.getTransaction().commit();
+		//Note: Hibernate 5++ supports Java try-with-resource blocks
+		try (Session session = HibernateUtil.openSession()) {
+			List<Contact> contacts = session.createQuery("FROM Contact").list();
 			return contacts;
-		} finally {
-			if (em != null)
-				em.close();
 		}
 	}
 
-	public Contact getContact(int contactId) {
-		EntityManager em = null;
-		try {
-			em = emf.createEntityManager();
-			em.getTransaction().begin();
-			Contact contact = em.find(Contact.class, contactId);
-			em.getTransaction().commit();
+	@Override
+	public Contact getContact(int id) {
+		try (Session session = HibernateUtil.openSession()) {
+			Contact contact = (Contact)session.get(Contact.class, id);
+			// Mitigate "failed to lazily initialize a collection" error
+			Hibernate.initialize(contact.getNotes());
 			return contact;
-		} finally {
-			if (em != null)
-				em.close();
 		}
 	}
 
+	@Override
 	public int addContact(Contact contact) {
-		EntityManager em = null;
-		try {
-			em = emf.createEntityManager();
-			em.getTransaction().begin();
-			em.persist(contact);
-			em.getTransaction().commit();
-			return contact.getContactId();
-		} finally {
-			if (em != null)
-				em.close();
+		try (Session session = HibernateUtil.openSession()) {
+			Transaction tx = session.beginTransaction(); 
+			try {
+				// "save()" returns contatId immediately; persist() doesn't
+				int id = (int)session.save(contact);
+				tx.commit();
+				return id;
+			} catch (Exception e) {
+				tx.rollback();
+				throw e;
+			}
 		}
 	}
 
-	public void deleteContact(int contactId) {
-		EntityManager em = null;
-		try {
-			em = emf.createEntityManager();
-			em.getTransaction().begin();
-			Contact contact = em.find(Contact.class, contactId);
-			em.remove(contact);
-			em.getTransaction().commit();
-		} finally {
-			if (em != null)
-				em.close();
+	@Override
+	public int deleteContact(int id) {
+		try (Session session = HibernateUtil.openSession()) {
+			Transaction tx = session.beginTransaction(); 
+			try {
+				// Use HQL (vs. SQL)
+				// OBSOLETE: query.setInteger(0, id) et al: deprecated since Hibernate 5.2
+				String hql = "delete from Contact where contactId  = ?1";
+				Query query = session.createQuery(hql)
+						.setParameter(1,  id);
+				int result = query.executeUpdate(); 
+				tx.commit ();
+				return result;
+			} catch (Exception e) {
+				tx.rollback();
+				throw e;
+			}
 		}
 	}
 
+	@Override
 	public void updateContact(Contact contact) {
-		EntityManager em = null;
-		try {
-			em = emf.createEntityManager();
-			em.getTransaction().begin();
-			Contact dbRecord = em.find(Contact.class, contact.getContactId());
-			dbRecord.setName(contact.getName());
-			dbRecord.setEmail(contact.getEmail());
-			dbRecord.setAddress1(contact.getAddress1());
-			dbRecord.setAddress2(contact.getAddress2());
-			dbRecord.setCity(contact.getCity());
-			dbRecord.setState(contact.getState());
-			dbRecord.setZip(contact.getZip());
-			dbRecord.setPhone1(contact.getPhone1());
-			dbRecord.setPhone2(contact.getPhone2());
-			//dbRecord.setNotes(contact.getNotes());  // TBD: accomodate child elements
-			em.getTransaction().commit();
-		} finally {
-			if (em != null)
-				em.close();
+		try (Session session = HibernateUtil.openSession()) {
+			Transaction tx = session.beginTransaction(); 
+			try {
+				session.update(contact);
+				tx.commit ();
+			} catch (Exception e) {
+				tx.rollback();
+				throw e;
+			}
 		}
+			
 	}
 
 	/**
-	 * Test driver
+	 * Scaffolding test driver
 	 */
-	public static void main(String[] args) {
+	public static void main (String[] args) {
+		ContactsRepository contactsRepository = null;
 		try {
 			// Connect to database
-			ContactsRepository contactsRepository = new ContactsRepositoryImpl();
+			contactsRepository = new ContactsRepositoryImpl();		
 
-			// Query records
+			// Fetch record (DEBUG)
+			Contact tmpContact = contactsRepository.getContact(101);
+			System.out.println("getContact(1): " + tmpContact.toString());
+
+			// Query records 
 			List<Contact> contacts = contactsRepository.getContacts();
-			System.out.println("getContacts: ct=" + contacts.size());
-
+			System.out.println("getContacts(): ct=" + contacts.size());
+			
 			// Add new record
 			Contact newContact = new Contact();
-			newContact.setName("Mickey Mouse");
-			newContact.setEmail("mm@abc.com");
-			int newId = contactsRepository.addContact(newContact);
+			newContact.setName("Mickey Mouse"); newContact.setEmail("mm@abc.com");
+			int	newId = contactsRepository.addContact(newContact);
 			System.out.println("addContact(), new contactId=" + newId);
-			contacts = contactsRepository.getContacts();
-			System.out.println("getContacts: ct=" + contacts.size());
-
+			contacts = contactsRepository.getContacts(); 
+			System.out.println("getContacts(): ct=" + contacts.size());
+			Contact c = contactsRepository.getContact(newId);
+			System.out.println("getContact()@newId=" + c.toString());
+			
 			// Update record
 			newContact.setCity("Emerald City");
 			newContact.setState("Oz");
-			newContact.setZip("00000"); 
-			/*
-			 * // ... Mitigate "contact.notes == null". // TBD:
-			 * come up with a better solution... List<Note> updatedNotes =
-			 * newContact.getNotes(); if (updatedNotes == null) updatedNotes = new
-			 * ArrayList<Note>(); updatedNotes.add(new Note("New Note"));
-			 * newContact.setNotes(updatedNotes);
-			 */			
+			newContact.setZip("00000");
+			newContact.setNotes(new HashSet<Note>());
+			newContact.getNotes().add(new Note("This is a test note"));
 			contactsRepository.updateContact(newContact);
+			System.out.println("updateContact(): added City, State, Zip and test note...");
 
 			// Fetch record
 			Contact updatedContact = contactsRepository.getContact(newId);
 			System.out.println("getContact(" + newId + "): " + updatedContact.toString());
 
 			// Delete record
-			contactsRepository.deleteContact(newId);
+			int iret = contactsRepository.deleteContact(newId);
+			System.out.println("deleteContact()="+ iret + "...");
 			contacts = contactsRepository.getContacts();
-			System.out.println("getContacts: ct=" + contacts.size());
-			for (Contact contact: contacts) {
-				System.out.println(contact.toString());
-			}
+			System.out.println("getContacts(): ct=" + contacts.size());
 
 		} catch (Exception e) {
 			System.out.println("ERROR: " + e.getMessage());
 			e.printStackTrace();
-		}
+		} finally {
+			if (contactsRepository != null)
+				((ContactsRepositoryImpl)contactsRepository).shutdown();
+		}		
 	}
 }

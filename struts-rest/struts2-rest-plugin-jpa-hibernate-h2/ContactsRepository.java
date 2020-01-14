@@ -8,6 +8,6 @@ public interface ContactsRepository {
 	public List<Contact> getContacts();
 	public Contact getContact(int id);
 	public int addContact(Contact contact);
-	public int deleteContact(int id);
+	public void deleteContact(int id);
 	public void updateContact(Contact contact);
 }

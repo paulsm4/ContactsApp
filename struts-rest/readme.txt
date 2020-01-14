@@ -1,4 +1,4 @@
-﻿Get* Struts REST API
+* Struts2:
   - References:
       https://struts.apache.org/plugins/rest/
       https://www.baeldung.com/struts-2-intro
@@ -11,7 +11,7 @@
 
   - GAMEPLAN:
     - Server: Tomcat 8/Eclipse IDE
-       DB: H2/file
+       Hibernate
        Maven/pom.xml
        Java 8
   
@@ -45,108 +45,57 @@
     - DeleteContact: DELETE https://localhost:44362/api/Contacts/:id
 
 ===================================================================================================
-* Subprojects:
-  - ContactsApp/winforms-ui:
-      ContactsAppWinforms
-      <= C#/.Net/NewtonSoft JSON UI
+* INITIAL GAMEPLAN:
+  - Tried using struts2-rest-plugin + JPA API/H2 database
+    <= No-go:
+  - Saved work to new Git branch "struts2-rest-plugin-hibernate-h2"
+  - Saved a backup of pertinent files to subfolder ""struts2-rest-plugin-hibernate-h2/"
 
-  - ContactsApp/struts-rest:
-      soapui
-      <= SoapUI REST requests/responses
-
+* NEW GAMEPLAN:
+  - Scaffold "vanilla" Struts2 REST service, using 
+  - "vanilla" Hibernate persistence, with 
+  - Derby embedded database
 ===================================================================================================
-* Start project:
+* Scaffold "Vanilla" Struts2+Hibernate app:
 
-1. Environment:
-   - Project folder: 
-       $PROJ/ContactsApp/struts-rest
-       readme.txt (this file)
-       struts-2-rest-web-service-integration-example.zip (reference example)
-   - Git:
-     - git pull --all; git status
-       <= Verify everything's in sync
-     - git  git checkout -b struts-rest; git status
-       <= Verify we're on the new "struts-rest" branch, everything's clean
-        
-   - Update Eclipse:
-     https://wiki.eclipse.org/FAQ_How_do_I_upgrade_Eclipse_IDE%3F
-     - Eclipse > Help > About >
-         <= Version: 2018-09 (4.9.0)
-     - Window > Preferences > Available S/W sites > 
-        REMOVE: Eclipse 2018-09
-        ADD: https://download.eclipse.org/releases/2019-09/
-     - Help > Check for Updates >
-        <= Select options, [Update]
-        <<Restart Eclipse>>
-
-   - Eclipse > Servers > Tomcat 
-       <= Eclipse update scrubbed previous Tomcat v8.0 config, needed to re-create (from D:\Tomcat)
-     << Note: ultimately wound up using Tomcat 9 >>
-
-2. Create project:
-   - File > New > New Maven Project >
-       Folder= D:\paul\proj\ContactsApp\struts-rest\ContactsApp, 
-       Archetype= maven-archetype-webapp
-       GroupID= com.example, ArtifactId= ContactsApp, Package= com.example.contactsapp
-       <= Creates struts-rest\ContactsApp Eclipse/Maven project
-          NOTE: Strictly speaking, we *DIDN'T* need the webapp archetype... It just makes things easier...
-
-   - pom.xml:
-     -------
+1. pom.xml:
+   -------
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.example.contactsapp</groupId>
   <artifactId>ContactsApp</artifactId>
-  <version>1.0</version>
+  <version>2.0</version>
   <name>Contacts App</name>
   <packaging>war</packaging>
   ...
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <struts2.version>2.5.22</struts2.version>
-    <hibernate.version>5.4.0.Final</hibernate.version>  
-    <h2.version>1.4.197</h2.version>
-    <log4j2.version>2.12.1</log4j2.version>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<struts2.version>2.5.22</struts2.version>
+    <hibernate.version>5.4.0.Final</hibernate.version>	
+  	<derby.version>10.14.2.0</derby.version>
+  	<log4j2.version>2.12.1</log4j2.version>
+    <java.version>1.8</java.version>
     <maven-war-plugin.version>3.2.2</maven-war-plugin.version>
     <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    ...
+  </properties>
+  ...
   <dependencies>
-    <dependency>
-        <groupId>org.apache.struts</groupId>
-        <artifactId>struts2-core</artifactId>
-        <version>${struts2.version}</version>
+	<dependency>
+	    <groupId>org.apache.struts</groupId>
+	    <artifactId>struts2-core</artifactId>
         ...
-    <dependency>
-        <groupId>org.apache.struts</groupId>
-        <artifactId>struts2-convention-plugin</artifactId>
-        ...
-    <dependency>
-        <groupId>org.apache.struts</groupId>
-        <artifactId>struts2-rest-plugin</artifactId>
-        ...
-    <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        ...
-    <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        ...
-    <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        ...
-    <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-    <= See https://mvnrepository.com/ for current versions of struts2-convention-plugin, struts2-rest-plugin, h2, junit
-       Note: did *NOT* restrict h2 to "scope test"
+	<dependency>
+	    <groupId>org.apache.struts</groupId>
+	    <artifactId>struts2-json-plugin</artifactId>
         ...
     <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
-    <= Persistence APIs and implementation
+        ...
+    <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derby</artifactId>
         ...
     <dependency>
         <groupId>org.apache.logging.log4j</groupId>
@@ -164,525 +113,465 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
           <configuration>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
+            <source>${java.version}</source>
+            <target>${java.version}</target>
             ...
-    <= NOTE: Explicit "maven-compiler-plugin" version info is necessary.
-             See "default JRE 1.5" issue below...
+    <= NOTE: 
+       Must specify Java version, and have a <build> stanza with explicit maven-compiler-plugin version, else defaults to JRE 1.5
 
-   - Eclipse > Maven > Update Project >
-       <= OK
+2. Eclipse > Import Maven project > pom.xml >
+   <= Auto-generates Dynamic web project, creates src/* and target project directories
+   
+   - Eclipse > ContactsApp > Java EE Tools > Generate deployment descriptor >
+     <= pom.xml complaining "missing web.xml"
 
-   - Eclipse > Build Path >
-      <= Add Tomcat runtime library
+   - Eclipse >  ContactsApp > Properties >
+       Facets: Dynamic Web Module 2.5, Java 1.8, Javascript 1.0: OK
+       Java Compiler: JavaSE-1.8, 1.8 JDK compliance: OK
+       Java Build Path > Libraries > {JRE System Library (JavaSE-1.8), Maven Dependencies > Add Library >
+         Server Runtime > Tomcat 9 > [Apply & Close]
+       <= OK: basic Eclipse project ready to go...
 
-   - Eclipse > Project > Properties >
-      - Facets > Java
-        <= Should be JRE 1.8
-      - Java Compiler > Settings
-        <= Should be JRE 1.8
-      - Build Path > Libraries > Add > Tomcat 8
-        <= Servlet libs
-      - Deployment Assembly
-        <= Ensure /src/main/{java/, resources/, webapp/} all included
+3. Scaffold project:
+   - com.example.contactsapp.models
+       Contact.java, Note.java
+   - com.example.contactsapp.repositories
+       ContactsRepository.java (interface), class ContactsRepositoryImpl.java (implements ContactsRepository)
+   - com.example.contactsapp.actions
+       ContactsAction (extends ActionSupport)
 
-3. Scaffold app:
-   - New > Class >
-       com.example.contactsapp.models, Contact
-       com.example.contactsapp.models, Note
-       com.example.contactsapp.controllers, ContactsController
-          public class ContactsController implements ModelDriven<Contact> { ... }
-          @Override
-          public Contact getModel() { ... }
-       com.example.contactsapp.repositories, ContactsRepository
-          public interface ContactsRepository { ... }
-       com.example.contactsapp.repositories, ContactsRepositoryImpl
-          public class ContactsRepositoryImpl implements ContactsRepository { ... }
+4. Data model:
+   - JPA vs. Hibernate:
+     - From JBoss Hibernate User Guide:
+https://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html
+    "Historically applications using Hibernate would have used its proprietary XML mapping
+     file format for this purpose. With the coming of JPA, most of this information is now
+     defined in a way that is portable across ORM/JPA providers using annotations (and/or
+     standardized XML format). This chapter will focus on JPA mapping where possible."
+     <= Not bad advice... but let's stick with old-school "hibernate.cfg.xml, *.hbm.xml" this go-around...
 
-    - src > main > resources > struts.xml:
-      -----------------------------------
-        <?xml version="1.0" encoding="UTF-8" ?>
-        <!DOCTYPE struts PUBLIC
-            "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
-            "http://struts.apache.org/dtds/struts-2.3.dtd">
-        <struts>
-            <constant name="struts.convention.action.suffix" value="Controller"/>
-            <constant name="struts.convention.action.mapAllMatches" value="true"/>
-            <constant name="struts.convention.default.parent.package" value="rest-default"/>
-            <constant name="struts.convention.package.locators" value="controllers"/>
-        </struts>
+   - Links:
+http://zetcode.com/db/hibernatederby/
+https://www.mkyong.com/hibernate/hibernate-one-to-many-relationship-example/
+https://www.mkyong.com/tutorials/hibernate-tutorials/
 
-    - src > main > webapp > WEB-INF > web.xml:
-      ---------------------------------------
-        <web-app>
-          <display-name>Struts Contacts App</display-name>
-          <filter>
-                <filter-name>struts2</filter-name>
-                <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
-            </filter>
-          <filter-mapping>
-            <filter-name>struts2</filter-name>
-            <url-pattern>/*</url-pattern>
-          </filter-mapping>
-        </web-app>
-          <= NOTE: 
-               OLD:          org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter
-               Struts 2.5++: org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter
-
-   - Test Build:
-       Eclipse > pom.xml > Run as > Maven Build >
-        Goals: clean install
-        <= BUILD SUCCESS
-
-   << saved backup, updated Git >>
-===================================================================================================
-4. ContactsApp/Persistence (JPA-Hibernate):
-https://www.javaguides.net/2019/11/hibernate-h2-database-example-tutorial.html
-https://thoughts-on-java.org/implementing-the-repository-pattern-with-jpa-and-hibernate/
-
-  - Contact.java:
-    ------------
-    @Entity
-    @Table(name = "contacts")
-    public class Contact {
-    
-        @Id
-        @GeneratedValue(strategy=GenerationType.AUTO)
-        private int contactId;
-        private String name;
-        private String email;
-        private String phone1;
-        private String phone2;
-        private String address1;
-        private String address2;
-        private String city;
-        private String state;
-        private String zip;
-        @Column
-        @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-        @JoinColumn(name="contactId")
-        private List<Note> notes;
-        ... <= Added getters/setters
-               Note @OneToMany, @JoinColumn annotations for "Notes" table
-
-  - Note.java:
-    ---------
-    Entity
-    @Table(name = "notes")
-    public class Note {
-        @Id
-        @GeneratedValue(strategy=GenerationType.AUTO)
-        private int noteId;
-        private String text;
-        private Date date;
-        private int contactId;
-    ... <= Added getters/setters
-
-  - pom.xml:
-    -------
-    <properties>
-      <hibernate.version>5.4.10.Final</hibernate.version>   
-        <h2.version>1.4.200</h2.version>
-      ...
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>${h2.version}</version>
-          ...
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.version}</version>
-          ...
-      <= NOTE: "hibernate-entitymanager" is deprecated; use hibernate-core instead
-
-   - src/main/resources/META-INF/persistence.xml
-     -------------------------------------------
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE xml>
-      <persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="http://java.sun.com/xml/ns/persistence 
-         http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-         
-         <persistence-unit name="ContactsApp_JPA" transaction-type="RESOURCE_LOCAL"> 
-            <class>com.example.contactsapp.models.Contact</class>
-            <properties>
-               <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
-               <property name="javax.persistence.jdbc.url" value="jdbc:h2:file:~/data/contactsapp"/>
-               <property name="javax.persistence.jdbc.user" value="sa"/>
-               <property name="javax.persistence.jdbc.password" value=""/>
-               <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
-               <!-- validate|update|create|create-drop 
-               <property name="javax.persistence.schema-generation.database.action" value="create"/>
-               -->
-               <property name="hibernate.hbm2ddl.auto" value="create" />
-               <property name="show_sql" value="true"/>
-            </properties>
-         </persistence-unit>
-      </persistence>
-
-   - NOTES:
-    - JPA runtime needs persistence.xml in META-INF.
-      Copying to Eclipse Dynamic web apps project folder src > main > resources > META-INF will do this.
-    - Maven project dependencies for Struts web app sufficient for standalone Java app (e.g. for static main scaffolding)
-
-  - ContactsRepository.java:
-    -----------------------
-    public interface ContactsRepository {
-      public List<Contact> getContacts();
-      public Contact getContact(int id);
-      public int addContact(Contact contact);
-      public void deleteContact(int id);
-      public void updateContact(Contact contact);
-   }
-
-  - ContactsRepositoryImpl.java (initial draft):
-    -------------------------------------------
-public class ContactsRepositoryImpl implements ContactsRepository {
-    private static final String PERSISTENCE_UNIT = "ContactsApp_JPA";
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
-    
-    public List<Contact> getContacts() {
-        EntityManager em = null;
-        List<Contact> contacts = null;
-        try {
-            em = emf.createEntityManager();
-            em.getTransaction().begin();
-            Query query = em.createQuery("FROM Contact");
-            contacts = (List<Contact>)query.getResultList();
-            em.getTransaction().commit();
-        } finally {
-            if (em != null)
-                em.close();
-        }
-        return contacts;
-    }
-
-    public int addContact(Contact contact) {
-        EntityManager em = null;
-        Contact newContact = null;
-        try {
-            em = emf.createEntityManager();
-            em.getTransaction().begin();
-            em.persist(contact);
-            em.getTransaction().commit();
-            return contact.getContactId();
-        } finally {
-            if (em != null)
-                em.close();
-        }
-    }
-    ...
-
-  - ContactsRepositoryImpl.java (standalone test scaffolding):
-    ---------------------------------------------------------
-    public static void main(String[] args) {
-        try {
-            // Connect to database
-            ContactsRepository contactsRepository = new ContactsRepositoryImpl();
-
-            // Query records
-            List<Contact> contacts = contactsRepository.getContacts();
-            System.out.println("getContacts: ct=" + contacts.size());
-
-            // Add new record
-            Contact newContact = new Contact();
-            newContact.setName("Mickey Mouse");
-            newContact.setEmail("mm@abc.com");
-            int newId = contactsRepository.addContact(newContact);
-            System.out.println("addContact(), new contactId=" + newId);
-            contacts = contactsRepository.getContacts();
-            System.out.println("getContacts: ct=" + contacts.size());
-
-            // Update record
-            newContact.setCity("Emerald City");
-            newContact.setState("Oz");
-            newContact.setZip("00000");
-            ...
-            // Fetch record
-            Contact updatedContact = contactsRepository.getContact(newId);
-            System.out.println("getContact(" + newId + "): " + updatedContact.toString());
-
-            // Delete record
-            contactsRepository.deleteContact(newId);
-            contacts = contactsRepository.getContacts();
-            System.out.println("getContacts: ct=" + contacts.size());
-            for (Contact contact: contacts) {
-                System.out.println(contact.toString());
-            }
-
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-}  <= Verified OK
-
-===================================================================================================
-5. Implement controller (aka "Action")
-
-   - ContactsApp/ContactsController.java:
-     -----------------------------------
-/**
- * Default URL mappings (https://struts.apache.org/plugins/rest/):
- * - index:   GET request with no id parameter.
- * - show:    GET request with an id parameter.
- * - create:  POST request with no id parameter and JSON/XML body
- * - update:  PUT request with an id parameter and JSON/XML body. 
- * - destroy: DELETE request with an id parameter. 
- * - edit:    GET  request with an id parameter and the edit view specified. 
- * - editNew: GET  request with no id parameter and the new view specified.
- */
-public class ContactsController implements ModelDriven<Object> {
-
+   - Note.java:
+     ---------
+public class Note implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String id;
-    private Object model;
-    private ContactsRepository contactsRepository = new ContactsRepositoryImpl();
+
+    private int noteId;
+    private String text;
+    private Date date;
+    private int contactId;
+    
+    public Note () {
+        this.date = new Date();
+    }
+
+    public Note (String text) {
+        this.date = new Date();
+        this.text = text;
+    }
 
     @Override
-    public Object getModel() {
-        return model;
+    public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat ("MM/DD/yy HH:mm:ss");
+        String s = "id: " + noteId + ", date: " + sdf.format(date) + ": " + text;
+        return s;
     }
+    ... <= Auto-generated getters/setters
+    <<No JPA or Hibernate annotations whatsoever.  We'll use *.hbm.xml instead >>
+
+   - Contact.java:
+     ------------
+public class Contact implements Serializable {
+    private static final long serialVersionUID = 1L;
     
-    public HttpHeaders index () {
-        model = contactsRepository.getContacts();
-        return new DefaultHttpHeaders("index").disableCaching();
-    }
+    private int contactId;
+    private String name;
+    private String email;
+    private String phone1;
+    private String phone2;
+    private String address1;
+    private String address2;
+    private String city;
+    private String state;
+    private String zip;
+    private Set<Note> notes = new HashSet<Note>();
     
-    public HttpHeaders show() {
-        int contactId = Integer.parseInt(id);
-        model = (Object)contactsRepository.getContact(contactId);
-        return new DefaultHttpHeaders("show");
-    }
-    
-    public HttpHeaders create() {
-        Contact contact = (Contact)model;
-        contactsRepository.addContact(contact);
-        return new DefaultHttpHeaders("success");
-    }
-    ...
+    @Override
+    public String toString() {...}
+    <= NOTE: 
+       Originally tried "List<Note> notes", but encountered problems.
+       Punted, and a) defined as "Set<Note>", and b) initialized at declaration.
 
-===================================================================================================
-6. Initial test drive:
+  - Eclipse > src > main > New Folder >
+      <= Add "resources"
+    - Eclipse > Build Path > Source >
+      <= Add "resources" as a resource folder
 
-  - Eclipse > Servers > Tomcat > Debug >
-    - http://localhost:8080/StrutsContactsApp => "Hello world!"
-      <= Web app works!
-    - http://localhost:8080/StrutsContactsApp/contacts => HTTP 400
-    - http://localhost:8080/StrutsContactsApp/contacts.json => []
-    - http://localhost:8080/StrutsContactsApp/contacts..xml => <list/>
-    <= Simple requests working in browser...
+  - src/main/resources/Note.hbm.xml:
+    -------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.example.contactsapp.models.Note" table="notes" catalog="app">
+        <id name="noteId" type="java.lang.Integer">
+            <column name="noteId" />
+            <generator class="identity" />
+        </id>
+        <property name="text" type="string">
+            <column name="text" length="80"/>
+        </property>
+        <property name="date" type="date">
+            <column name="date"/>
+        </property>
+    </class>
+</hibernate-mapping>
+    <= NOTE: 
+       Did *NOT* need "<many-to-one>" stanza here
 
-  - Installed SoapUI 5.5.0
-      SoapUI > New REST Project >
-        Project Name= StrutsContactsApp, endpoint= http://localhost:8080
-
-    - SoapUI project organization:
-Projects
-  +-- StrutsContactsApp          // Project
-     +-- http://localhost:8080   // Service (e.g. from WSDL, WADL, Swagger, etc)
-        +-- JSONEndpoints        // Resource
-          +-- GetContacts        // Method
-          |  +-- GetContactsReq  // GET Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json
-          +-- AddContacts        // Method
-             +-- AddContactReq   // POST Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json
-             |                      Request body=
-             |                        {
-             |                          "name":"Jason Bourne",
-             |                          "email":"jb@abc.com"
-             |                        }
-             +-- GetContactsReq   // GET Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json
-       <= Saved to $PROJ/ContactsApp/struts-rest/soapui/
-
-
-    - SoapUI > StrutsContactsApp > GetContacts > GetContactsReq > Run >
-        <= OK: Response= HTTP 200, Content-Type: application/json;charset=UTF-8, Body= [] (no contacts)
-
-    - SoapUI > StrutsContactsApp > AddContacts > AddContactReq > Run >
-HTTP Status 500: Internal Server Error
-java.lang.NullPointerException
-        com.fasterxml.jackson.databind.ObjectMapper.readerForUpdating(ObjectMapper.java:3691)
-        org.apache.struts2.rest.handler.JacksonLibHandler.toObject(JacksonLibHandler.java:43)
-        ...
-        <= TBD: DEBUG!
-
-===================================================================================================
-* Build Problems:
-1. pom.xml import defaults to JRE 1.5
-  - Project > Build Path >
-    - JRE System Library [J2SE-1.5]
-      <= Eeek!  How did *that* fossil creep in???
-    SOLUTION:
-    - DELETE .settings, .target, .classpath, .project (i.e. delete Eclipse project artifacts)
-    - Explicitly specify maven-compiler-plugin and JRE versions in pom.xml:
-pom.xml:
--------
-...
-  <properties>
-    ...
-    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    ...
-  <build>
-    ...
-    <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>${maven-compiler-plugin.version}</version>
-          <configuration>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
+  - src/main/resources/Contact.hbm.xml:
+    ----------------------------------
+<hibernate-mapping>
+    <class name="com.example.contactsapp.models.Contact" table="contacts" catalog="app">
+        <id name="contactId" type="java.lang.Integer">
+            <column name="contactId" />
+            <generator class="identity" />
+        </id>
+        <property name="name" type="java.lang.String">
+            <column name="name" length="40"/>
+        </property>
+        <property name="email" type="string">
+            <column name="email" length="40"/>
+        </property>
+        <property name="phone1" type="string">
+            <column name="phone1" length="20"/>
             ...
-    - Eclipse > Import > Existing Maven Project >
-       <= Imports project
+        <set name="notes" table="notes" inverse="true" lazy="true" fetch="select">
+            <key column="contactId" not-null="true" />
+            <one-to-many class="com.example.contactsapp.models.Note" />
+        </set>
+    </class>        
+</hibernate-mapping>
+    <= NOTES: 
+       1. Defined as "notes" as a "set", with "lazy loading"
+          Consequently, to access "notes" without "failed to lazily initialize a collection" error, must do one of:
+          a) Read "notes" before closing the session
+          b) Use a "JOIN FETCH" 
+          c) call "Hibernate.initialize()" in the repository
+       2. DOCTYPE must be 
+          <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
-    - Eclipse > Project > Properties >
-      - Facets > Java
-        <= Should be JRE 1.8
-      - Java Compiler > Settings
-        <= Should be JRE 1.8
-      - Build Path > Libraries > Add > Tomcat 8
-        <= Servlet libs
-      - Deployment Assembly
-        <= Ensure /src/main/{java/, resources/, webapp/} all included
+5. Manually create Derby database:
+  - Eclipse > Perspective > DBeaver > 
+      <= Open DBeaver perspective
 
-2. Java version incompatibility:
-    - Tomcat > Debug >
-an 05, 2020 4:09:06 PM org.apache.catalina.startup.ContextConfig processAnnotationsJar
-SEVERE: Unable to process Jar entry [module-info.class] from Jar [file:/C:/Users/paulsm/eclipse-workspace5/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ContactsApp/WEB-INF/lib/stax-ex-1.8.1.jar] for annotations
-org.apache.tomcat.util.bcel.classfile.ClassFormatException: Invalid byte tag in constant pool: 19
-    at org.apache.tomcat.util.bcel.classfile.Constant.readConstant(Constant.java:97)
-    at org.apache.tomcat.util.bcel.classfile.ConstantPool.<init>(ConstantPool.java:55)
-        ...
-Jan 05, 2020 4:09:07 PM org.apache.catalina.startup.ContextConfig processAnnotationsJar
-SEVERE: Unable to process Jar entry [module-info.class] from Jar [file:/C:/Users/paulsm/eclipse-workspace5/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ContactsApp/WEB-INF/lib/istack-commons-runtime-3.0.8.jar] for annotations
-org.apache.tomcat.util.bcel.classfile.ClassFormatException: Invalid byte tag in constant pool: 19
-    at org.apache.tomcat.util.bcel.classfile.Constant.readConstant(Constant.java:97)
-    at org.apache.tomcat.util.bcel.classfile.ConstantPool.<init>(ConstantPool.java:55)
-        ...
-Jan 05, 2020 4:09:07 PM org.apache.catalina.startup.ContextConfig processAnnotationsJar
-SEVERE: Unable to process Jar entry [module-info.class] from Jar [file:/C:/Users/paulsm/eclipse-workspace5/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ContactsApp/WEB-INF/lib/txw2-2.3.2.jar] for annotations
-org.apache.tomcat.util.bcel.classfile.ClassFormatException: Invalid byte tag in constant pool: 19
-    at org.apache.tomcat.util.bcel.classfile.Constant.readConstant(Constant.java:97)
-    at org.apache.tomcat.util.bcel.classfile.ConstantPool.<init>(ConstantPool.java:55)
-        ...
-     <<Tried many things.  Finally wound up:
-       1. Upgrading MSI to Tomcat9 (vs. Tomcat 8)
-       2. Downgrading to slightly lower 3rd party library versions in pom.xml >>
-
-    - Compared libraries (from old pom.xml vs. new pom.xml):
-INCOMPATIBLE:                      OK:
-------------                       --
-stax-ex-1.8.1.jar                  stax-ex-1.8.jar
-istack-commons-runtime-3.0.8.jar   istack-commons-runtime-3.0.7.jar
-txw2-2.3.2.jar                     txw2-2.3.1.jar
-jackson-databind-2.10.1.jar        jackson-databind-2.10.0.jar
-...                                ...
-
-===================================================================================================
-* TBD:
-  - Debug/finish controller (struts2-rest-plugin implementation)
-  - Try Hibernate (vs. JPA-Hibernate) repository?
-  - Try EclipseLink (vs. H2) DB?
-  - Try "vanilla" struts2/struts.xml (vs. struts2-rest-plugin)?
-  - Other?
-
-===================================================================================================
-  
-* Double-checked Strut2 example code:
-  - http://struts.apache.org/download.cgi#struts2316-SNAPSHOT >
-      Example Applications > https://www-us.apache.org/dist/struts/2.5.22/struts-2.5.22-apps.zip
-      
-  - Explicitly defined controller methods in struts.xml:
-    - struts2-rest-showcase-war > WEB-INF > classes > stuts.xml >
-        <!DOCTYPE struts PUBLIC
-            "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
-            "http://struts.apache.org/dtds/struts-2.5.dtd">
-           ...
-           <package name="contacts" extends="rest-default">
-               <global-allowed-methods>index,show,create,update,destroy,deleteConfirm</global-allowed-methods>
-           </package>
-        <= Added this to my struts.xml
-           Also needed to change schema from Struts 2.3 => Struts 2.5
-
-  - Modified controller to support either "single record" or "list":
-    - ContactsController.java:
-      -----------------------
-      public class ContactsController implements ModelDriven<Object> {
-          ....
-          private String id;
-          private Contact model = new Contact();
-          private Collection<Contact> list;
-          private ContactsRepository contactsRepository = new ContactsRepositoryImpl();
-          ....
-          @Override
-          public Object getModel() {
-              return (list != null ? list : model);  // <-- return either single record, or list
-          }
-          ...
-          public HttpHeaders index () {
-              log.debug("Reading all contacts...");
-              list = contactsRepository.getContacts();  // <-- Fetch list
-              return new DefaultHttpHeaders("index").disableCaching();
-          ...
-          public HttpHeaders show() {
-              log.debug("Reading contact(" + id + ")...");
-              int contactId = Integer.parseInt(id);
-              model = (Contact)contactsRepository.getContact(contactId);  // <-- Fetch item
-              return new DefaultHttpHeaders("show");
-           ...
-           
-  - SoapUI > AddContact > AddcontactRequest >
-      POST Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json, Body=
-        {
-            "name": "Sy Snootles",
-            "email": "ss@abc.com",
-            "phone1": "111-111-1111",
-            "phone2": null,
-            "address1": "1 Yellow Brick Road",
-            "address2": null,
-            "city": "Emerald City",
-            "state": "Oz",
-            "zip": "00000",
-            "notes": null
-        }
-        <= Successfully added new contact
-
-  - Current status, both Postman and SoapUI:
-    - GET Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json: OK
-
-    - POST Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json + JSON body: OK
-
-    - PUT Endpoint= http://localhost:8080, Resource= http://localhost:8080, + JSON body:
-      <= Successfully calls ContactsController.create() and correctly creates the new "Contact" in the database:
-    19:46:05.361 [http-nio-8080-exec-3] DEBUG com.opensymphony.xwork2.validator.ValidationInterceptor - Validating /contacts with method update.
-    19:46:05.393 [http-nio-8080-exec-3] DEBUG com.opensymphony.xwork2.DefaultActionInvocation - Executing action method = update
-    19:46:05.398 [http-nio-8080-exec-3] DEBUG com.opensymphony.xwork2.ognl.SecurityMemberAccess - Checking access for [target: com.example.contactsapp.controllers.ContactsController@7e69160c, member: public java.lang.String com.example.contactsapp.controllers.ContactsController.update(), property: null]
-    19:46:07.862 [http-nio-8080-exec-3] DEBUG com.example.contactsapp.controllers.ContactsController - Updating existing contact(97)...
-
-      ... but it then fails on "return":
-    19:46:11.380 [http-nio-8080-exec-3] WARN  org.apache.struts2.dispatcher.Dispatcher - Could not find action or result: /StrutsContactsApp/contacts/97
-    com.opensymphony.xwork2.config.ConfigurationException: : NNo result defined for action com.example.contactsapp.controllers.ContactsController and result update
-    	at org.apache.struts2.rest.RestActionInvocation.findResult(RestActionInvocation.java:283) ~[struts2-rest-plugin-2.5.22.jar:2.5.22]
-    	at org.apache.struts2.rest.RestActionInvocation.executeResult(RestActionInvocation.java:225) ~[struts2-rest-plugin-2.5.22.jar:2.5.22]
-    	at org.apache.struts2.rest.RestActionInvocation.processResult(RestActionInvocation.java:189) ~[struts2-rest-plugin-2.5.22.jar:2.5.22]
-    	at org.apache.struts2.rest.RestActionInvocation.invoke(RestActionInvocation.java:137) ~[struts2-rest-plugin-2.5.22.jar:2.5.22]
-    	at com.opensymphony.xwork2.DefaultActionProxy.execute(DefaultActionProxy.java:157) ~[struts2-core-2.5.22.jar:2.5.22]
-        ...
-    - Postman > DELETE > http://localhost:8080/StrutsContactsApp/contacts/97
-        <= Status 405 – Method Not Allowed; no console.log
-
-    <<Tried many things: all no-go>>   
+  - Database > Driver Manager > 
+      <= Verify "Derby Embedded" is present (download if missing)
+    - Driver type= Generic, Class name= org.apache.derby.jdbc.EmbeddedDriver, URL template= jdbc:derby:{folder}, Embedded= Y
     
-  - TBD: 
-    - Save current
-    - New Git branch
-    - Rewrite for a) "vanilla" Struts2, b) "vanilla" Hibernate, c) EclipseL
+  - Database > New Connection >
+      Derby Embedded= Y >
+      Path= c:/temp/contactsdb;create=true >
+     [Create] >
+        <= Prompted to download drivers
+           "Database creation successful"
+     [Test Connection]
+        <= OK
+     - Edit connection >
+        <= Delete ";create=true"
+       Updated path= contactsdb
+    [Test Connection]
+       <= Still "OK"
 
-  - Git update:
+    <= NOTES: 
+       1. Use Path= "c:/temp/contactsdb;create=true", then change back to Path= "c:/temp/contactsdb" for subsequent runs
+       2. JDBC URL= jdbc:derby:c:/temp/contactsdb
+       3. Filepath= c:\temp\contactsdb\*
+
+6. Persistence:
+   - Hibernate SessionFactory vs. EntityManagerFactory:
+https://stackoverflow.com/questions/5640778/hibernate-sessionfactory-vs-entitymanagerfactory
+    <= In general, prefer EntityManager (JPA) over SessionFactory (Hibernate-specific)
+
+  - src/main/resources/hibernate.cfg.xml:
+    ------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+ 
+<hibernate-configuration>
+<session-factory>
+    <property name="hibernate.connection.driver_class">org.apache.derby.jdbc.EmbeddedDriver</property>
+    <property name="hibernate.connection.username">app</property>
+    <property name="hibernate.connection.password"></property>
+    <property name="hibernate.connection.url">jdbc:derby:c:/temp/contactsdb</property>
+    <property name="hibernate.dialect">org.hibernate.dialect.DerbyTenSevenDialect</property>
+    <!-- Auto-generate tables: create|validate|update|create-drop
+    <property name="hibernate.hbm2ddl.auto">create</property>
+    -->
+    <property name="show_sql">true</property>
+    <property name="format_sql">true</property>
+    <mapping resource="Contact.hbm.xml" />
+    <mapping resource="Note.hbm.xml" />
+</session-factory>
+</hibernate-configuration>
+    <= Points to newly created "contactsdb"; Can uncomment/comment out auto-generation
+
+   - HibernateUtil.java:
+     ------------------
+/**
+ * REFERENCE:
+ * https://www.mkyong.com/tutorials/hibernate-tutorials/
+ */
+public class HibernateUtil {
+
+    private static SessionFactory sessionFactory = buildSessionFactory();
+
+    private static SessionFactory buildSessionFactory() {
+        try {
+            // load from different directory
+            SessionFactory sessionFactory = 
+                new Configuration()
+                    .configure("hibernate.cfg.xml")
+                    .buildSessionFactory();
+
+            return sessionFactory;
+
+        } catch (Throwable ex) {
+            // Make sure you log the exception, as it might be swallowed
+            System.err.println("Initial SessionFactory creation failed." + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
+    public static void shutdown() {
+        // Close caches and connection pools
+        if (sessionFactory != null)
+            sessionFactory.close();
+        sessionFactory = null;
+    }
+    
+    public static Session openSession() {
+        if (sessionFactory == null)
+            sessionFactory = buildSessionFactory();
+        return sessionFactory.openSession();        
+    }
+   
+   - ContactsRepository.java:
+     -----------------------
+public interface ContactsRepository {
+	public List<Contact> getContacts();
+	public Contact getContact(int id);
+	public int addContact(Contact contact);
+	public void deleteContact(int id);
+	public void updateContact(Contact contact);
+    ...
+
+   - ContactsRepositoryImpl.java:
+     ---------------------------
+public class ContactsRepositoryImpl implements ContactsRepository {
+	private Session session;
+	
+	public ContactsRepositoryImpl() {
+		session = HibernateUtil.getSessionFactory().openSession();
+	}
+	
+	public void close () {
+		HibernateUtil.shutdown ();
+		session = null;
+        ...
+	@Override
+	public List<Contact> getContacts() { ... }
+	@Override
+	public Contact getContact(int id) { ... }
+	@Override
+	public int addContact(Contact contact) { ... }
+	@Override
+	public void deleteContact(int id) { ... }
+	@Override
+	public void updateContact(Contact contact) { ... }
+	public static void main (String[] args) {
+		ContactsRepository contactsRepository = null;
+		try {
+			// Connect to database
+			contactsRepository = new ContactsRepositoryImpl();
+			...
+		} catch (Exception e) {
+			System.out.println("ERROR: " + e.getMessage());
+			e.printStackTrace();
+		} finally {
+			if (contactsRepository != null)
+				((ContactsRepositoryImpl)contactsRepository).close();
+		}
+  - Eclipse > Debug Configurations > New > Java Application >
+      ContactsRepositoryImpl > Stop in main= Y > [Debug] >
+ERROR StatusLogger No Log4j 2 configuration file found. Using default configuration (logging only errors to the console), or user programmatically provided configurations. Set system property 'log4j2.debug' to show Log4j 2 internal initialization logging. See https://logging.apache.org/log4j/2.x/manual/configuration.html for instructions on how to configure Log4j 2
+
+    - SOLUTION: Added log4j2.xml
+      src > main > resources > log4j2.xml:
+      -----------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Root level="debug">
+      <AppenderRef ref="Console"/>
+    </Root>
+  </Loggers>
+</Configuration>
+
+  - Eclipse > Debug > ContactsRepositoryImpl >
+    - Console.log:
+20:57:51.595 [main] DEBUG org.jboss.logging - Logging Provider: org.jboss.logging.Log4j2LoggerProvider
+20:57:51.607 [main] DEBUG org.hibernate.integrator.internal.IntegratorServiceImpl - Adding Integrator [org.hibernate.cfg.beanvalidation.BeanValidationIntegrator].
+20:57:51.607 [main] DEBUG org.hibernate.integrator.internal.IntegratorServiceImpl - Adding Integrator [org.hibernate.secure.spi.JaccIntegrator].
+20:57:51.607 [main] DEBUG org.hibernate.integrator.internal.IntegratorServiceImpl - Adding Integrator [org.hibernate.cache.internal.CollectionCacheInvalidator].
+20:57:51.689 [main] INFO  org.hibernate.Version - HHH000412: Hibernate Core {5.4.0.Final}
+... <= OK: Hibernate runtime successfully invoked...
+20:57:52.220 [main] DEBUG org.hibernate.boot.jaxb.internal.MappingBinder - Performing JAXB binding of hbm.xml document : Origin(name=Contact.hbm.xml,type=RESOURCE)
+20:57:52.876 [main] DEBUG org.hibernate.boot.jaxb.internal.stax.LocalXmlResourceResolver - Interpreting public/system identifier : [-//Hibernate/Hibernate Mapping DTD//EN] - [http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd]
+20:57:52.876 [main] DEBUG org.hibernate.boot.jaxb.internal.stax.LocalXmlResourceResolver - Recognized hibernate-mapping identifier; attempting to resolve on classpath under org/hibernate/
+20:57:52.893 [main] DEBUG org.hibernate.boot.jaxb.internal.MappingBinder - Performing JAXB binding of hbm.xml document : Origin(name=Note.hbm.xml,type=RESOURCE)
+... <= OK:  We're reading the correct hibernate.cfg.xml file, and picking up our *.hbm.xml definitions
+20:57:53.033 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: using driver [org.apache.derby.jdbc.EmbeddedDriver] at URL [jdbc:derby:c:/temp/contactsdb]
+20:57:53.033 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001001: Connection properties: {password=, user=sa}
+... <=OK:  We're reading the correct hibernate.cfg.xml file, and picking up the correct Derby driver...
+20:57:53.033 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: using driver [org.apache.derby.jdbc.EmbeddedDriver] at URL [jdbc:derby:c:/temp/contactsdb]
+20:57:53.033 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001001: Connection properties: {password=, user=sa}
+20:57:53.033 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001003: Autocommit mode: false
+...
+20:57:53.392 [main] DEBUG org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator - JDBC version : 4.2
+20:57:53.392 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.DerbyTenSevenDialect
+20:57:53.783 [main] DEBUG org.hibernate.boot.model.relational.Namespace - Created database namespace [logicalName=Name{catalog=null, schema=null}, physicalName=Name{catalog=null, schema=null}]
+20:57:53.783 [main] DEBUG org.hibernate.type.spi.TypeConfiguration$Scope - Scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration@6ff0b1cc] to MetadataBuildingContext [org.hibernate.boot.internal.MetadataBuildingContextRootImpl@3b55dd15]
+20:57:53.845 [main] DEBUG org.hibernate.boot.model.relational.Namespace - Created database namespace [logicalName=Name{catalog=app, schema=null}, physicalName=Name{catalog=app, schema=null}]
+... <= We've got the right driver, and opening the correct database...
+20:57:53.861 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Mapping class: com.example.contactsapp.models.Contact -> contacts
+20:57:53.861 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Mapped property: contactId -> [contactId]
+20:57:53.861 [main] DEBUG org.hibernate.mapping.PrimaryKey - Forcing column [contactid] to be non-null as it is part of the primary key for table [contacts]
+20:57:53.861 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Mapped property: name -> [name]
+...  <= Binding "Contact" entities
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Mapping class: com.example.contactsapp.models.Note -> notes
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Mapped property: noteId -> [noteId]
+20:57:53.876 [main] DEBUG org.hibernate.mapping.PrimaryKey - Forcing column [noteid] to be non-null as it is part of the primary key for table [notes]
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Mapped property: text -> [text]
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Mapped property: date -> [date]
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Mapping collection: com.example.contactsapp.models.Contact.notes -> notes
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Binding [ONE_TO_MANY] element type for a [SET]
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder - Mapped collection : com.example.contactsapp.models.Contact.notes
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder -    + table -> contacts
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder -    + key -> contactId
+20:57:53.876 [main] DEBUG org.hibernate.boot.model.source.internal.hbm.ModelBinder -    + one-to-many -> com.example.contactsapp.models.Note
+20:57:53.876 [main] DEBUG org.hibernate.boot.internal.InFlightMetadataCollectorImpl - Resolving reference to class: com.example.contactsapp.models.Contact
+20:57:53.876 [main] DEBUG org.hibernate.boot.internal.InFlightMetadataCollectorImpl - Resolving reference to class: com.example.contactsapp.models.Contact
+...  <= Binding "Note" entities, and establishing Note's child relationship to "Contact"
+
+  - Used static main() driver in ContactsRepositoryImpl.java to verify:
+    - getContacts()
+    - getContact(id)
+    - addContact(contact)
+    - updateContact(contact)
+    - deleteContact(id)
+    - Contact.toString()
+
+6. Struts2 actions (preliminary:
+   ----------------------------
+   - src > main > webapp > WEB-INF > web.xml:
+     ---------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns="http://java.sun.com/xml/ns/javaee" 
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
+  version="2.5">
+  <display-name>Struts Contacts App</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+  <filter>
+    <filter-name>struts2</filter-name>
+    <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+  </filter>
+  <filter-mapping>
+	<filter-name>struts2</filter-name>
+	<url-pattern>/*</url-pattern>
+  </filter-mapping>  
+</web-app>
+  <= NOTES:
+     - Web-App 2.5 xsd, configure Strut2 as a servlet filter
+     - CURRENT: class= org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter
+     - OLD: org.apache.struts2.dispatcher.FilterDispatcher (deprecated in Struts 2.1.3)
+
+   - src > main > resources > struts.xml:
+     -----------------------------------
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+        "http://struts.apache.org/dtds/struts-2.5.dtd">
+<struts>
+   <constant name = "struts.devMode" value = "true" />
+   <package name = "default" extends = "json-default">
+      <action name = "getContacts" 
+         class = "com.example.contactsapp.actions.ContactsAction" 
+         method = "getContacts">
+         <result name = "success" type="json">
+             <param name="noCache">true</param>
+             <param name="excludeNullProperties">true</param>
+             <param name="root">jsonString</param>
+         </result>
+      </action>
+   </package>
+</struts>
+  <= NOTES:
+     1. For now, just one action: "getContacts"
+     2. Using struts2-json-plugin, hence "json-default" 
+
+7. ContactsActions.java:
+   --------------------
+public class ContactsAction extends ActionSupport {
+    private static final long serialVersionUID = 1L;
+    private Map<String, String> jsonString;
+    
+    public String getContacts () {
+        jsonString = new HashMap<String, String>();
+        jsonString.put("status", "getContacts was successful!");
+        jsonString.put("data", "Dummy Contact");        
+        return Action.SUCCESS;
+    }
+    
+    public Map<String, String> getJsonString() { return jsonString; }
+    public void setJsonString(Map<String, String> m) { jsonString = m; }
+    ...
+
+  <= NOTES:
+     1. Action.SUCCESS is the return value to Struts2
+     2. Per struts.xml, "success" action will return root parameter "jsonString()"
+     3. jsonString is a Map<> object in the controller, accessed via getter/setters getJsonString()/setJsonString()
+
+8. Test Struts2 app:
+   ----------------
+   - Eclipse > Tomcat > Add/Remove > ContactsApp
+     <= Add "ContactsApp" servlet
+   - Eclipse > Tomcat > Debug >
+     <= Run ContactsApp in Eclipse debugger
+   - http://localhost:8080/StrutsContactsApp/getContacts.action
+     <= Value "{"data":"Dummy Contact","status":"getContacts was successful!"}" returned to browser
+         
+      
+
+
         
   
