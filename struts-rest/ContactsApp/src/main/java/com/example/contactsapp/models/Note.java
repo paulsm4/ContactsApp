@@ -10,7 +10,7 @@ public class Note implements Serializable {
 	private int noteId;
     private String text;
     private Date date;
-    private int contactId;
+    private Contact contact;
     
 	public Note () {
 		this.date = new Date();
@@ -23,7 +23,7 @@ public class Note implements Serializable {
 
 	@Override
     public String toString() {
-		SimpleDateFormat sdf = new SimpleDateFormat ("MM/DD/yy HH:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat ("MM/DD/yy HH:mm:ss.SSS");
 		String s = "id: " + noteId + ", date: " + sdf.format(date) + ": " + text;
 		return s;
 	}
@@ -55,12 +55,12 @@ public class Note implements Serializable {
 		this.date = date;
 	}
 
-	public int getContactId() {
-		return contactId;
+	public Contact getContact() {
+		return contact;
 	}
 
-	public void setContactId(int contactId) {
-		this.contactId = contactId;
+	public void setContact(Contact contact) {
+		this.contact = contact;
 	}
 	
 }

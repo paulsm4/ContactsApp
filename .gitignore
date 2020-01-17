@@ -30,6 +30,7 @@ tmp/
 **/*.zip
 **/*.bu
 **/*.war
+**/derby.log
 
 # VSCode
 .vscode/

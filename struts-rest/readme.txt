@@ -45,16 +45,15 @@
     - DeleteContact: DELETE https://localhost:44362/api/Contacts/:id
 
 ===================================================================================================
-* INITIAL GAMEPLAN:
+* INITIAL GAMEPLAN (struts2-rest-plugin-hibernate-h2):
   - Tried using struts2-rest-plugin + JPA API/H2 database
     <= No-go:
-  - Saved work to new Git branch "struts2-rest-plugin-hibernate-h2"
-  - Saved a backup of pertinent files to subfolder ""struts2-rest-plugin-hibernate-h2/"
+  - Saved work to "struts2-rest-plugin-hibernate-h2"
 
 * NEW GAMEPLAN:
-  - Scaffold "vanilla" Struts2 REST service, using 
-  - "vanilla" Hibernate persistence, with 
-  - Derby embedded database
+  - Scaffold "vanilla" Struts2 REST service, using...
+  - "vanilla" Hibernate persistence, with... 
+  - Derby embedded database.
 ===================================================================================================
 * Scaffold "Vanilla" Struts2+Hibernate app:
 
@@ -486,8 +485,8 @@ ERROR StatusLogger No Log4j 2 configuration file found. Using default configurat
     - deleteContact(id)
     - Contact.toString()
 
-6. Struts2 actions (preliminary:
-   ----------------------------
+6. Struts2 actions (preliminary):
+   -----------------------------
    - src > main > webapp > WEB-INF > web.xml:
      ---------------------------------------
 <?xml version="1.0" encoding="UTF-8"?>
@@ -569,7 +568,175 @@ public class ContactsAction extends ActionSupport {
      <= Run ContactsApp in Eclipse debugger
    - http://localhost:8080/StrutsContactsApp/getContacts.action
      <= Value "{"data":"Dummy Contact","status":"getContacts was successful!"}" returned to browser
-         
+
+===================================================================================================
+* Further Hibernate-related changes:
+  - Contact.java:
+    ------------
+public class Contact implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
+	private int contactId;
+    private String name;
+    private String email;
+    private String phone1;
+    private String phone2;
+    private String address1;
+    private String address2;
+    private String city;
+    private String state;
+    private String zip;
+    private Set<Note> notes = new HashSet<Note>();
+    ... <= "Notes" should be defined as a Java Set<>; it should be initialized for each new Contact object
+
+  - Note.java:
+    ---------
+public class Note implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	private int noteId;
+    private String text;
+    private Date date;
+    private Contact contact;
+    ... <= We don't reference other entities by their ID, but by a direct reference to the entity.
+
+  - Contact.hbm.xml:
+    ---------------
+<hibernate-mapping>
+    <class name="com.example.contactsapp.models.Contact" table="contacts" catalog="app">
+        <id name="contactId" type="java.lang.Integer">
+            <column name="contactId" />
+            <generator class="identity" />
+            ...
+        <set name="notes" table="notes" cascade="delete" inverse="true" lazy="true" fetch="select">
+            <key column="contactId" not-null="true" on-delete="cascade" />
+            <one-to-many class="com.example.contactsapp.models.Note" />
+        <= Needed to define Cascade=Delete
+           There should be a *BI-MODAL* relationship between "Contact" and "Note"
+
+  - Note.hbm.xml:
+    ------------
+<hibernate-mapping>
+    <class name="com.example.contactsapp.models.Note" table="notes" catalog="app">
+        <id name="noteId" type="java.lang.Integer">
+            <column name="noteId" />
+            <generator class="identity" />
+            ...
+        <many-to-one name="Contact" class="com.example.contactsapp.models.Contact" fetch="select">
+            <column name="contactId" not-null="true"/>
+            ...
+        <property name="date" type="timestamp">
+            <column name="date"/>
+            ...  <= Hibernate XML time/date options: "time", "date" or "timestamp"
+
+  - ContactsRepositoryImpl.java:
+    ---------------------------
+public class ContactsRepositoryImpl implements ContactsRepository {
+
+	public void shutdown () {
+		HibernateUtil.shutdown ();
+		...
+    @Override
+	public List<Contact> getContacts() {
+		//Note: Hibernate 5++ supports Java try-with-resource blocks
+		try (Session session = HibernateUtil.openSession()) {
+			// This will fetch all contacts... but "Notes" aren't accessible outside this session
+			List<Contact> contacts = session.createQuery("FROM Contact").list();
+			return contacts;
+		...
+	@Override
+	public List<Contact> getContactsFetchAll() {
+		// Mitigate Hibernate "failed to lazily initialize a collection" runtime error
+		try (Session session = HibernateUtil.openSession()) {
+			List<Contact> contacts = session.createQuery("SELECT c FROM Contact c INNER JOIN FETCH c.notes").list();
+			return contacts;
+		...
+	@Override
+	public Contact getContact(int id) {
+		try (Session session = HibernateUtil.openSession()) {
+			Contact contact = (Contact)session.get(Contact.class, id);
+			// Mitigate "failed to lazily initialize a collection" error
+			Hibernate.initialize(contact.getNotes());
+			return contact;
+        ...
+	@Override
+	public int addContact(Contact contact) {
+		try (Session session = HibernateUtil.openSession()) {
+			Transaction tx = session.beginTransaction(); 
+			try {
+				// "save()" returns contactId immediately; persist() doesn't
+				int id = (int)session.save(contact);
+				
+				// Ensure every contact has at least one note (INNER JOIN FETCH)
+				Note initialNote = new Note("Creating new contact");
+				initialNote.setContact(contact);
+				contact.getNotes().add(initialNote);
+				session.save(initialNote);
+				for (Note n : contact.getNotes()) {
+					n.setContact(contact);
+					session.save(n);
+				}
+				tx.commit();
+				return id;
+			} catch (Exception e) {
+				tx.rollback();
+				throw e;
+			}
+        ...
+	@Override
+	public int deleteContact(int id) {
+		try (Session session = HibernateUtil.openSession()) {
+			Transaction tx = session.beginTransaction(); 
+			try {
+				// Use HQL (vs. SQL)
+				// OBSOLETE: query.setInteger(0, id) et al: deprecated since Hibernate 5.2
+				String hql = "delete from Contact where contactId  = ?1";
+				Query query = session.createQuery(hql)
+						.setParameter(1,  id);
+				int result = query.executeUpdate(); 
+				tx.commit ();
+				return result;
+			} catch (Exception e) {
+				tx.rollback();
+				throw e;
+        ...
+	@Override
+	public void updateContact(Contact contact) {
+		try (Session session = HibernateUtil.openSession()) {
+			Transaction tx = session.beginTransaction(); 
+			try {
+				session.update(contact);
+				for (Note n : contact.getNotes()) {
+					if (n.getContact() == null) {
+						n.setContact(contact);
+					}
+					session.saveOrUpdate(n);
+				}
+				tx.commit ();
+			} catch (Exception e) {
+				tx.rollback();
+				throw e;
+			}
+
+* Hibernate Pearls of Wisdom:
+  Best Practices for Many-To-One and One-To-Many Association Mappings,  Thorben Janssen:
+https://thoughts-on-java.org/best-practices-many-one-one-many-associations-mappings/
+    1. Don’t use unidirectional one-to-many associations
+    2. Avoid the mapping of huge to-many associations
+       <= For large #/associated entities, it’s better to use a JPQL query with pagination. 
+    3. Think twice before using CascadeType.Remove
+    4. Use orphanRemoval when modeling parent-child associations
+       <= EX: @OneToMany(mappedBy = "order", orphanRemoval = true)
+    5. Implement helper methods to update bi-directional associations
+    6. Define FetchType.LAZY for @ManyToOne association
+       <= Default= FetchType.EAGER.  Don't do this!
+
+
+
+
+
+
+===================================================================================================
       
 
 

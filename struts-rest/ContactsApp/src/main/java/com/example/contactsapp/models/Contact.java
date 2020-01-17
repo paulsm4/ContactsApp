@@ -1,6 +1,8 @@
 package com.example.contactsapp.models;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.Set;
 
 public class Contact implements Serializable {
@@ -16,7 +18,7 @@ public class Contact implements Serializable {
     private String city;
     private String state;
     private String zip;
-    private Set<Note> notes;
+    private Set<Note> notes = new HashSet<Note>();
     
     @Override
     public String toString() {
@@ -28,8 +30,10 @@ public class Contact implements Serializable {
     		sb.append("notes: []");
     	} else {
     		sb.append("notes: [\n");
+    		SimpleDateFormat sdf = new SimpleDateFormat ("MM/DD/yy HH:mm:ss.SSS");
     		for (Note n : notes) {
-    			sb.append(n.getText());
+    			String sDate = sdf.format(n.getDate());
+    			sb.append(sDate + ": " + n.getText());
   				sb.append("\n");
     		}
     		sb.append("]");

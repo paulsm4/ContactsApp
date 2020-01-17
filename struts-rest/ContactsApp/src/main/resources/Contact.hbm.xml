@@ -34,8 +34,8 @@
         <property name="zip" type="string">
             <column name="zip" length="10"/>
         </property>
-        <set name="notes" table="notes" inverse="true" lazy="true" fetch="select">
-            <key column="contactId" not-null="true" />
+        <set name="notes" table="notes" cascade="delete" inverse="true" lazy="true" fetch="select">
+            <key column="contactId" not-null="true" on-delete="cascade" />
             <one-to-many class="com.example.contactsapp.models.Note" />
         </set>
     </class>        

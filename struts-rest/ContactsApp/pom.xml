@@ -10,12 +10,13 @@
   <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	<struts2.version>2.5.22</struts2.version>
-    <hibernate.version>5.4.0.Final</hibernate.version>	
-  	<derby.version>10.14.2.0</derby.version>
+  	<hibernate.version>5.4.0.Final</hibernate.version>	
+  	<derby.version>10.15.1.3</derby.version>
   	<log4j2.version>2.12.1</log4j2.version>
-    <java.version>1.8</java.version>
-    <maven-war-plugin.version>3.2.2</maven-war-plugin.version>
-    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+  	<jackson.version>2.10.0</jackson.version>
+  	<java.version>1.8</java.version>
+  	<maven-war-plugin.version>3.2.2</maven-war-plugin.version>
+  	<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
   </properties>
   
   <dependencies>
@@ -36,7 +37,7 @@
 	    <artifactId>struts2-json-plugin</artifactId>
 	    <version>${struts2.version}</version>
 	</dependency>
-
+ 
     <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
@@ -47,9 +48,20 @@
         <groupId>org.apache.derby</groupId>
         <artifactId>derby</artifactId>
         <version>${derby.version}</version>
-        <scope>test</scope>
     </dependency>
     
+    <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derbyshared</artifactId>
+        <version>${derby.version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derbytools</artifactId>
+        <version>${derby.version}</version>
+    </dependency>
+
     <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api</artifactId>
@@ -62,6 +74,11 @@
         <version>${log4j2.version}</version>
     </dependency>
 	
+    <dependency>
+    	<groupId>com.fasterxml.jackson.core</groupId>
+    	<artifactId>jackson-databind</artifactId>
+    	<version>${jackson.version}</version>
+    </dependency>	
   </dependencies>
   
   <build>

@@ -1,0 +1,214 @@
+15:25:08.761 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.config.ConfigurationManager - Checking ConfigurationProviders for reload.
+15:25:08.763 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.config.ConfigurationManager - Updating [reloadXmlConfiguration], current value is [true], new value [true]
+15:25:08.818 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.conversion.impl.InstantiatingNullHandler - Entering nullPropertyValue [target=[com.opensymphony.xwork2.DefaultTextProvider@3f587ddf], property=struts]
+15:25:08.842 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.conversion.impl.InstantiatingNullHandler - Entering nullPropertyValue [target=[com.opensymphony.xwork2.DefaultTextProvider@3f587ddf], property=struts]
+15:25:08.869 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.DefaultActionProxy - Creating an DefaultActionProxy for namespace [/] and action name [getContacts]
+15:25:10.178 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.I18nInterceptor - Intercept '//getContacts'
+15:25:10.500 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.I18nInterceptor - Using LocaleFinder implementation org.apache.struts2.interceptor.I18nInterceptor$SessionLocaleHandler
+15:25:10.505 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.I18nInterceptor - Searching locale in request under parameter request_only_locale
+15:25:10.767 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.I18nInterceptor - Searching locale in request under parameter request_locale
+15:25:10.771 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.I18nInterceptor - Checks session for saved locale
+15:25:10.774 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.I18nInterceptor - No Locale defined in session, fetching from current request and it won't be stored in session!
+15:25:10.778 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.I18nInterceptor - Searching current Invocation context
+15:25:10.781 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.I18nInterceptor - Applied invocation context locale: en_US
+15:25:10.795 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.ognl.SecurityMemberAccess - Checking access for [target: com.example.contactsapp.actions.ContactsAction@fd9513f, member: public java.util.Locale com.opensymphony.xwork2.ActionSupport.getLocale(), property: locale]
+15:25:10.806 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.ognl.SecurityMemberAccess - Checking access for [target: com.example.contactsapp.actions.ContactsAction@fd9513f, member: public java.util.Locale com.opensymphony.xwork2.ActionSupport.getLocale(), property: locale]
+15:25:10.949 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.I18nInterceptor - Before action invocation Locale=en_US
+15:25:12.584 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [org.apache.struts2.interceptor.FileUploadInterceptor]!
+15:25:13.274 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [com.opensymphony.xwork2.interceptor.AbstractInterceptor]!
+15:25:13.943 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [com.opensymphony.xwork2.interceptor.Interceptor]!
+15:25:14.127 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [java.lang.Object]!
+15:25:14.858 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [org.apache.struts2.interceptor.package]!
+15:25:15.545 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [org.apache.struts2.package]!
+15:25:17.942 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [org.apache.package]!
+15:25:20.308 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [org.package]!
+15:25:23.321 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [com.opensymphony.xwork2.interceptor.package]!
+15:25:26.292 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [com.opensymphony.xwork2.package]!
+15:25:29.112 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [com.opensymphony.package]!
+15:25:31.759 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Missing resource bundle [com.package]!
+15:25:31.822 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.conversion.impl.InstantiatingNullHandler - Entering nullPropertyValue [target=[com.example.contactsapp.actions.ContactsAction@fd9513f, com.opensymphony.xwork2.DefaultTextProvider@3f587ddf], property=struts]
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by com.opensymphony.xwork2.util.AbstractLocalizedTextProvider (file:/C:/Users/paulsm/workspace3/.metadata/.plugins/org.eclipse.wst.server.core/tmp1/wtpwebapps/ContactsApp/WEB-INF/lib/struts2-core-2.5.22.jar) to field java.util.ResourceBundle.cacheList
+WARNING: Please consider reporting this to the maintainers of com.opensymphony.xwork2.util.AbstractLocalizedTextProvider
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+15:25:41.427 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Class loader org.apache.catalina.loader.ParallelWebappClassLoader is not tomcat loader.
+15:25:41.444 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.util.AbstractLocalizedTextProvider - Resource bundles reloaded
+15:25:42.577 [http-nio-8080-exec-2] DEBUG org.apache.struts2.interceptor.FileUploadInterceptor - Bypassing //getContacts
+15:25:43.287 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.interceptor.StaticParametersInterceptor - Setting static parameters: {}
+15:25:44.226 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.interceptor.ParametersInterceptor - Setting params 
+15:25:44.247 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.interceptor.ParametersInterceptor - Setting params 
+15:25:47.020 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.validator.ValidationInterceptor - Validating //getContacts with method getContacts.
+===================================================================================================
+15:26:21.386 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.validator.ValidationInterceptor - Invoking validate() on action com.example.contactsapp.actions.ContactsAction@fd9513f
+15:26:22.040 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.interceptor.PrefixMethodInvocationUtil - Cannot find method [validateGetContacts] in action [com.example.contactsapp.actions.ContactsAction@fd9513f]
+15:26:22.070 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.interceptor.PrefixMethodInvocationUtil - Cannot find method [validateDoGetContacts] in action [com.example.contactsapp.actions.ContactsAction@fd9513f]
+15:26:22.097 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.DefaultActionInvocation - Executing action method = getContacts
+15:26:23.476 [http-nio-8080-exec-2] DEBUG com.opensymphony.xwork2.ognl.SecurityMemberAccess - Checking access for [target: com.example.contactsapp.actions.ContactsAction@fd9513f, member: public java.lang.String com.example.contactsapp.actions.ContactsAction.getContacts() throws java.lang.Exception, property: null]
+===================================================================================================
+15:27:13.427 [http-nio-8080-exec-2] DEBUG org.jboss.logging - Logging Provider: org.jboss.logging.Log4j2LoggerProvider
+15:27:24.288 [http-nio-8080-exec-2] DEBUG org.hibernate.integrator.internal.IntegratorServiceImpl - Adding Integrator [org.hibernate.cfg.beanvalidation.BeanValidationIntegrator].
+15:27:26.777 [http-nio-8080-exec-2] DEBUG org.hibernate.integrator.internal.IntegratorServiceImpl - Adding Integrator [org.hibernate.secure.spi.JaccIntegrator].
+15:27:32.698 [http-nio-8080-exec-2] DEBUG org.hibernate.integrator.internal.IntegratorServiceImpl - Adding Integrator [org.hibernate.cache.internal.CollectionCacheInvalidator].
+===================================================================================================
+15:29:09.657 [http-nio-8080-exec-2] INFO  org.hibernate.Version - HHH000412: Hibernate Core {5.4.0.Final}
+15:29:10.896 [http-nio-8080-exec-2] INFO  org.hibernate.cfg.Environment - HHH000206: hibernate.properties not found
+15:31:50.345 [http-nio-8080-exec-2] DEBUG org.hibernate.boot.jaxb.internal.stax.LocalXmlResourceResolver - Interpreting public/system identifier : [-//Hibernate/Hibernate Configuration DTD 3.0//EN] - [http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd]
+15:31:50.958 [http-nio-8080-exec-2] DEBUG org.hibernate.boot.jaxb.internal.stax.LocalXmlResourceResolver - Recognized hibernate-configuration identifier; attempting to resolve on classpath under org/hibernate/
+15:31:51.230 [http-nio-8080-exec-2] DEBUG org.hibernate.boot.cfgxml.internal.JaxbCfgProcessor - cfg.xml document did not define namespaces; wrapping in custom event reader to introduce namespace information
+15:35:38.124 [http-nio-8080-exec-2] DEBUG org.hibernate.cfg.Configuration - Building session factory using internal StandardServiceRegistryBuilder
+15:35:40.123 [http-nio-8080-exec-2] DEBUG org.hibernate.service.spi.ServiceBinding - Overriding existing service binding [org.hibernate.secure.spi.JaccService]
+15:35:40.128 [http-nio-8080-exec-2] DEBUG org.hibernate.cfg.Configuration - Building session factory using provided StandardServiceRegistry
+15:35:49.088 [http-nio-8080-exec-2] DEBUG org.hibernate.cache.internal.RegionFactoryInitiator - Cannot default RegionFactory based on registered strategies as `[]` RegionFactory strategies were registered
+15:35:51.028 [http-nio-8080-exec-2] DEBUG org.hibernate.cache.internal.RegionFactoryInitiator - Cache region factory : org.hibernate.cache.internal.NoCachingRegionFactory
+15:36:20.225 [http-nio-8080-exec-2] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.0.Final}
+15:37:11.717 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration boolean -> org.hibernate.type.BooleanType@618f50e7
+15:37:11.746 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration boolean -> org.hibernate.type.BooleanType@618f50e7
+15:37:11.763 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Boolean -> org.hibernate.type.BooleanType@618f50e7
+15:37:12.209 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration numeric_boolean -> org.hibernate.type.NumericBooleanType@4c0f23e9
+15:37:12.663 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration true_false -> org.hibernate.type.TrueFalseType@6561affa
+15:37:13.123 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration yes_no -> org.hibernate.type.YesNoType@1b2580e4
+15:37:14.168 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration byte -> org.hibernate.type.ByteType@ad26d7d
+15:37:14.186 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration byte -> org.hibernate.type.ByteType@ad26d7d
+15:37:14.202 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Byte -> org.hibernate.type.ByteType@ad26d7d
+15:37:15.186 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration character -> org.hibernate.type.CharacterType@19a77c22
+15:37:15.204 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration char -> org.hibernate.type.CharacterType@19a77c22
+15:37:15.219 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Character -> org.hibernate.type.CharacterType@19a77c22
+15:37:16.254 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration short -> org.hibernate.type.ShortType@2e0d22a6
+15:37:16.273 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration short -> org.hibernate.type.ShortType@2e0d22a6
+15:37:16.288 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Short -> org.hibernate.type.ShortType@2e0d22a6
+15:37:17.283 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration integer -> org.hibernate.type.IntegerType@257e0150
+15:37:17.299 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration int -> org.hibernate.type.IntegerType@257e0150
+15:37:17.316 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Integer -> org.hibernate.type.IntegerType@257e0150
+15:37:18.360 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration long -> org.hibernate.type.LongType@f19e9fa
+15:37:18.378 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration long -> org.hibernate.type.LongType@f19e9fa
+15:37:18.396 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Long -> org.hibernate.type.LongType@f19e9fa
+15:37:19.386 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration float -> org.hibernate.type.FloatType@275d478b
+15:37:19.405 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration float -> org.hibernate.type.FloatType@275d478b
+15:37:19.423 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Float -> org.hibernate.type.FloatType@275d478b
+15:37:20.402 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration double -> org.hibernate.type.DoubleType@2dc42075
+15:37:20.420 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration double -> org.hibernate.type.DoubleType@2dc42075
+15:37:20.438 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Double -> org.hibernate.type.DoubleType@2dc42075
+15:37:21.392 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration big_decimal -> org.hibernate.type.BigDecimalType@7910d5a7
+15:37:21.409 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.math.BigDecimal -> org.hibernate.type.BigDecimalType@7910d5a7
+15:37:22.452 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration big_integer -> org.hibernate.type.BigIntegerType@4b6d05e
+15:37:22.470 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.math.BigInteger -> org.hibernate.type.BigIntegerType@4b6d05e
+15:37:23.449 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration string -> org.hibernate.type.StringType@5346177e
+15:37:23.467 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.String -> org.hibernate.type.StringType@5346177e
+15:37:23.929 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration nstring -> org.hibernate.type.StringNVarcharType@12113e2a
+15:37:24.438 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration ncharacter -> org.hibernate.type.CharacterNCharType@1208d0b3
+15:37:25.382 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration url -> org.hibernate.type.UrlType@4ea5df4b
+15:37:25.401 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.net.URL -> org.hibernate.type.UrlType@4ea5df4b
+15:37:26.390 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration Duration -> org.hibernate.type.DurationType@4c0b9edc
+15:37:26.408 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.time.Duration -> org.hibernate.type.DurationType@4c0b9edc
+15:37:27.650 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration Instant -> org.hibernate.type.InstantType@476fe9ef
+15:37:27.667 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.time.Instant -> org.hibernate.type.InstantType@476fe9ef
+15:37:28.748 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration LocalDateTime -> org.hibernate.type.LocalDateTimeType@28a83f01
+15:37:28.770 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.time.LocalDateTime -> org.hibernate.type.LocalDateTimeType@28a83f01
+15:37:29.879 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration LocalDate -> org.hibernate.type.LocalDateType@2b4514
+15:37:29.895 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.time.LocalDate -> org.hibernate.type.LocalDateType@2b4514
+15:37:31.014 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration LocalTime -> org.hibernate.type.LocalTimeType@66105a3e
+15:37:31.032 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.time.LocalTime -> org.hibernate.type.LocalTimeType@66105a3e
+15:37:32.163 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration OffsetDateTime -> org.hibernate.type.OffsetDateTimeType@1effc8e8
+15:37:32.182 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.time.OffsetDateTime -> org.hibernate.type.OffsetDateTimeType@1effc8e8
+15:37:33.218 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration OffsetTime -> org.hibernate.type.OffsetTimeType@439f967
+15:37:33.236 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.time.OffsetTime -> org.hibernate.type.OffsetTimeType@439f967
+15:37:34.352 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration ZonedDateTime -> org.hibernate.type.ZonedDateTimeType@f972853
+15:37:34.368 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.time.ZonedDateTime -> org.hibernate.type.ZonedDateTimeType@f972853
+15:37:36.133 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration date -> org.hibernate.type.DateType@7401cb27
+15:37:36.151 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.sql.Date -> org.hibernate.type.DateType@7401cb27
+15:37:37.502 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration time -> org.hibernate.type.TimeType@4fe9b17d
+15:37:37.520 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.sql.Time -> org.hibernate.type.TimeType@4fe9b17d
+15:37:38.999 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration timestamp -> org.hibernate.type.TimestampType@104fe751
+15:37:39.016 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.sql.Timestamp -> org.hibernate.type.TimestampType@104fe751
+15:37:39.033 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.util.Date -> org.hibernate.type.TimestampType@104fe751
+15:37:40.268 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration dbtimestamp -> org.hibernate.type.DbTimestampType@220b7c9b
+15:37:41.332 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration calendar -> org.hibernate.type.CalendarType@48f8224a
+15:37:41.350 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.util.Calendar -> org.hibernate.type.CalendarType@48f8224a
+15:37:41.368 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.util.GregorianCalendar -> org.hibernate.type.CalendarType@48f8224a
+15:37:41.986 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration calendar_date -> org.hibernate.type.CalendarDateType@2c6a254
+15:37:42.941 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration locale -> org.hibernate.type.LocaleType@4df0883f
+15:37:42.959 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.util.Locale -> org.hibernate.type.LocaleType@4df0883f
+15:37:43.850 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration currency -> org.hibernate.type.CurrencyType@412fedf0
+15:37:43.868 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.util.Currency -> org.hibernate.type.CurrencyType@412fedf0
+15:37:44.766 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration timezone -> org.hibernate.type.TimeZoneType@556bf62a
+15:37:44.784 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.util.TimeZone -> org.hibernate.type.TimeZoneType@556bf62a
+15:37:45.677 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration class -> org.hibernate.type.ClassType@1bc3197e
+15:37:45.694 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Class -> org.hibernate.type.ClassType@1bc3197e
+15:37:46.602 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration uuid-binary -> org.hibernate.type.UUIDBinaryType@4fde8b32
+15:37:46.618 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.util.UUID -> org.hibernate.type.UUIDBinaryType@4fde8b32
+15:37:47.070 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration uuid-char -> org.hibernate.type.UUIDCharType@187302ec
+15:37:48.200 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration binary -> org.hibernate.type.BinaryType@e88353d
+15:37:48.218 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration byte[] -> org.hibernate.type.BinaryType@e88353d
+15:37:48.235 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration [B -> org.hibernate.type.BinaryType@e88353d
+15:37:49.295 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration wrapper-binary -> org.hibernate.type.WrapperBinaryType@515ff3a1
+15:37:49.313 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration Byte[] -> org.hibernate.type.WrapperBinaryType@515ff3a1
+15:37:49.332 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration [Ljava.lang.Byte; -> org.hibernate.type.WrapperBinaryType@515ff3a1
+15:37:50.401 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration row_version -> org.hibernate.type.RowVersionType@755eab78
+15:37:50.810 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration image -> org.hibernate.type.ImageType@5af3427e
+15:37:51.818 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration characters -> org.hibernate.type.CharArrayType@77c1667b
+15:37:51.838 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration char[] -> org.hibernate.type.CharArrayType@77c1667b
+15:37:51.856 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration [C -> org.hibernate.type.CharArrayType@77c1667b
+15:37:52.909 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration wrapper-characters -> org.hibernate.type.CharacterArrayType@5285c385
+15:37:52.926 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration [Ljava.lang.Character; -> org.hibernate.type.CharacterArrayType@5285c385
+15:37:52.943 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration Character[] -> org.hibernate.type.CharacterArrayType@5285c385
+15:37:53.355 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration text -> org.hibernate.type.TextType@6703a898
+15:37:53.757 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration ntext -> org.hibernate.type.NTextType@2295524
+15:37:55.367 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration blob -> org.hibernate.type.BlobType@7da1331b
+15:37:55.385 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.sql.Blob -> org.hibernate.type.BlobType@7da1331b
+15:37:55.794 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration materialized_blob -> org.hibernate.type.MaterializedBlobType@65275042
+15:37:57.400 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration clob -> org.hibernate.type.ClobType@33139b38
+15:37:57.418 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.sql.Clob -> org.hibernate.type.ClobType@33139b38
+15:37:58.963 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration nclob -> org.hibernate.type.NClobType@2c0ffd03
+15:37:58.979 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.sql.NClob -> org.hibernate.type.NClobType@2c0ffd03
+15:37:59.378 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration materialized_clob -> org.hibernate.type.MaterializedClobType@1b9e4e2e
+15:37:59.805 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration materialized_nclob -> org.hibernate.type.MaterializedNClobType@582a155f
+15:38:01.347 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration serializable -> org.hibernate.type.SerializableType@34fa2cfc
+15:38:04.837 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration object -> org.hibernate.type.ObjectType@540636b8
+15:38:04.852 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration java.lang.Object -> org.hibernate.type.ObjectType@540636b8
+15:38:05.310 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration imm_date -> org.hibernate.type.AdaptedImmutableType@70db9d9
+15:38:05.327 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration imm_time -> org.hibernate.type.AdaptedImmutableType@599c4f8
+15:38:05.346 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration imm_timestamp -> org.hibernate.type.AdaptedImmutableType@76da0850
+15:38:05.365 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration imm_dbtimestamp -> org.hibernate.type.AdaptedImmutableType@4b3a4bc7
+15:38:05.384 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration imm_calendar -> org.hibernate.type.AdaptedImmutableType@2113e008
+15:38:05.403 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration imm_calendar_date -> org.hibernate.type.AdaptedImmutableType@6ae65ed6
+15:38:05.421 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration imm_binary -> org.hibernate.type.AdaptedImmutableType@4c584352
+15:38:05.439 [http-nio-8080-exec-2] DEBUG org.hibernate.type.BasicTypeRegistry - Adding type registration imm_serializable -> org.hibernate.type.AdaptedImmutableType@55255d6d
+15:38:24.588 [http-nio-8080-exec-2] DEBUG org.hibernate.boot.jaxb.internal.stax.LocalXmlResourceResolver - Interpreting public/system identifier : [-//Hibernate/Hibernate Mapping DTD//EN] - [http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd]
+15:38:24.610 [http-nio-8080-exec-2] DEBUG org.hibernate.boot.jaxb.internal.stax.LocalXmlResourceResolver - Recognized hibernate-mapping identifier; attempting to resolve on classpath under org/hibernate/
+15:38:27.734 [http-nio-8080-exec-2] DEBUG org.hibernate.boot.jaxb.internal.MappingBinder - Performing JAXB binding of hbm.xml document : Origin(name=Contact.hbm.xml,type=RESOURCE)
+15:41:15.852 [http-nio-8080-exec-2] DEBUG org.hibernate.boot.jaxb.internal.stax.LocalXmlResourceResolver - Interpreting public/system identifier : [-//Hibernate/Hibernate Mapping DTD//EN] - [http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd]
+15:41:15.874 [http-nio-8080-exec-2] DEBUG org.hibernate.boot.jaxb.internal.stax.LocalXmlResourceResolver - Recognized hibernate-mapping identifier; attempting to resolve on classpath under org/hibernate/
+15:41:18.981 [http-nio-8080-exec-2] DEBUG org.hibernate.boot.jaxb.internal.MappingBinder - Performing JAXB binding of hbm.xml document : Origin(name=Note.hbm.xml,type=RESOURCE)
+15:41:40.041 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [uuid2] -> [org.hibernate.id.UUIDGenerator]
+15:41:40.479 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [guid] -> [org.hibernate.id.GUIDGenerator]
+15:41:41.262 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [uuid] -> [org.hibernate.id.UUIDHexGenerator]
+15:41:41.282 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [uuid.hex] -> [org.hibernate.id.UUIDHexGenerator]
+15:41:41.663 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [assigned] -> [org.hibernate.id.Assigned]
+15:41:43.166 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [identity] -> [org.hibernate.id.IdentityGenerator]
+15:41:43.631 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [select] -> [org.hibernate.id.SelectGenerator]
+15:41:45.495 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [sequence] -> [org.hibernate.id.enhanced.SequenceStyleGenerator]
+15:41:46.708 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [seqhilo] -> [org.hibernate.id.SequenceHiLoGenerator]
+15:41:47.335 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [increment] -> [org.hibernate.id.IncrementGenerator]
+15:41:47.892 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [foreign] -> [org.hibernate.id.ForeignGenerator]
+15:41:48.371 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [sequence-identity] -> [org.hibernate.id.SequenceIdentityGenerator]
+15:41:48.394 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [enhanced-sequence] -> [org.hibernate.id.enhanced.SequenceStyleGenerator]
+15:41:49.580 [http-nio-8080-exec-2] DEBUG org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory - Registering IdentifierGenerator strategy [enhanced-table] -> [org.hibernate.id.enhanced.TableGenerator]
+15:41:55.044 [http-nio-8080-exec-2] WARN  org.hibernate.orm.connections.pooling - HHH10001002: Using Hibernate built-in connection pool (not for production use!)
+Initial SessionFactory creation failed.org.hibernate.service.spi.ServiceException: Unable to create requested service [org.hibernate.engine.jdbc.env.spi.JdbcEnvironment]
+
+
+===================================================================================================
+                  Time:         Delta:   Total Elapsed:
+                  ----          -----    -------------
+Invoke Servlet:   15:25:08.761  
+Invoke Action:    15:26:21.386   1min             1min
+Start Repository: 15:27:13.427   1min             2min    
+Start Hibernate:  15:29:09.657   2min             4min
+Hibernate fails:  15:41:55.044  12min            15min
+
+
+===================================================================================================
+
+===================================================================================================
+

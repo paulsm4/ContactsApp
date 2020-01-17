@@ -6,10 +6,13 @@
             <column name="noteId" />
             <generator class="identity" />
         </id>
+        <many-to-one name="Contact" class="com.example.contactsapp.models.Contact" fetch="select">
+            <column name="contactId" not-null="true"/>
+        </many-to-one>
         <property name="text" type="string">
             <column name="text" length="80"/>
         </property>
-        <property name="date" type="date">
+        <property name="date" type="timestamp">
             <column name="date"/>
         </property>
     </class>
