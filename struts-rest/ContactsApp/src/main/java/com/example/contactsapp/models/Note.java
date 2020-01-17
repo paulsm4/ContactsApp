@@ -1,16 +1,25 @@
 package com.example.contactsapp.models;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Note implements Serializable {
-	private static final long serialVersionUID = 1L;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "notes")
+public class Note {
 	private int noteId;
     private String text;
     private Date date;
-    private Contact contact;
+	private Contact contact;
     
 	public Note () {
 		this.date = new Date();
@@ -30,37 +39,21 @@ public class Note implements Serializable {
 	
     /*
      * getters/setters
-     */	
-	public int getNoteId() {
-		return noteId;
-	}
-
-	public void setNoteId(int noteId) {
-		this.noteId = noteId;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-	public Contact getContact() {
-		return contact;
-	}
-
-	public void setContact(Contact contact) {
-		this.contact = contact;
-	}
+     */
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(unique=true, nullable=false)	
+    public int getNoteId() { return noteId; }
+	public void setNoteId(int noteId) {	this.noteId = noteId; }
 	
+	public String getText() { return text; }
+	public void setText(String text) { this.text = text; }
+	
+	public Date getDate() {	return date; }
+	public void setDate(Date date) { this.date = date; }
+	
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="contactId", nullable=true)
+	public Contact getContact() { return contact; }
+	public void setContact(Contact contact) { this.contact = contact; }
 }

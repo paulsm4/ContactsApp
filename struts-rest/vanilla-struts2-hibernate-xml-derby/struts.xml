@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+        "http://struts.apache.org/dtds/struts-2.5.dtd">
+<struts>
+   <constant name = "struts.devMode" value = "true" />
+   <package name = "default" extends = "json-default">
+      <action name = "getContacts" 
+         class = "com.example.contactsapp.actions.ContactsAction" 
+         method = "getContacts">
+         <result name = "success" type="json">
+             <param name="noCache">true</param>
+             <param name="excludeNullProperties">false</param>
+             <!--
+             <param name="root">jsonString</param>
+             -->
+         </result>
+      </action>
+   </package>
+</struts>

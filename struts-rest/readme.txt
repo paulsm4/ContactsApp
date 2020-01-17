@@ -731,9 +731,46 @@ https://thoughts-on-java.org/best-practices-many-one-one-many-associations-mappi
     6. Define FetchType.LAZY for @ManyToOne association
        <= Default= FetchType.EAGER.  Don't do this!
 
+===================================================================================================
+* Problems getting "vanilla" Struts2 actions to work with HTTP "PUT" or "DELETE" methods
+  <= Changed gears: reverted back to "struts2-rest-plugin" baseline
 
+  - git branch -a =>
+  aspnet-mvc5
+  dotcore-angular
+  dotnetcore-angular/angular
+  master
+* struts-rest
+  struts2-rest-plugin-jpa-hibernate-h2
+  remotes/origin/aspnet-mvc5
+  remotes/origin/dependabot/nuget/aspnet-mvc5/ContactsApp/bootstrap-3.4.1
+  remotes/origin/dotcore-angular
+  remotes/origin/dotnetcore-angular/angular
+  remotes/origin/master
+  remotes/origin/struts-rest
+  remotes/origin/struts2-rest-plugin-jpa-hibernate-h2
 
+  - git merge struts2-rest-plugin-jpa-hibernate-h2
+Already up to date.
+    <= No-go on explicit merge
 
+  - git checkout struts2-rest-plugin-jpa-hibernate-h2
+    <= Copy to temp directory>>
+
+  - git checkout struts-rest
+    <= Manually reconciled with old "struts2-rest-plugin" code
+
+  - JPA vs. Hibernate:
+    <= Quickly discovered the "Hibernate dialect" ("Session" vs. EntityManager, etc.) far better than JPA
+       Reverted from JPA back to Hibernate
+
+  - CURRENT STATUS:
+                 Previous                                  Current
+                 struts-rest      struts2-rest-plugin      struts-rest
+                 ---------------  -------------------      -------------------
+Persistence API  Hibernate/XML    JPA/Annotations          Hibernate/Annotations
+Database         Derby            H2                       H2 
+Struts API       Struts2/XML      struts2-rest-plugin/XML  struts2-rest-plugin/XML
 
 
 ===================================================================================================
