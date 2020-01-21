@@ -37,6 +37,10 @@ public class ContactsController implements ModelDriven<Object> {
 		return (list != null ? list : model);
 	}
 	
+	public String getId () {
+		return id;
+	}
+	
     public void setId(String id) {
         if (id != null) {
         	int contactId = Integer.parseInt(id);
@@ -47,7 +51,7 @@ public class ContactsController implements ModelDriven<Object> {
 	
     public HttpHeaders index () {
     	log.debug("Reading all contacts...");
-        list = contactsRepository.getContacts();
+        list = contactsRepository.getContactsFetchAll();
         return new DefaultHttpHeaders("index").disableCaching();
     }
     
@@ -62,28 +66,28 @@ public class ContactsController implements ModelDriven<Object> {
     public HttpHeaders create() {
     	log.debug("Creating new contact...", model);
     	contactsRepository.addContact(model);
-        return new DefaultHttpHeaders("success");
+        return new DefaultHttpHeaders("show");
     }
 
-    // PUT /orders/1
-    public String update() {
-    	log.debug("Updating existing contact(" + id + ")...", model);
-    	contactsRepository.updateContact(model);
-    	return "update";
-    }
-
-    // GET /orders/1/deleteConfirm
-    public String deleteConfirm() {
-    	log.debug("Confirming delete(" + id + ")...");
-        return "deleteConfirm";
-    }
+//    // PUT /orders/1
+//    public String update() {
+//    	log.debug("Updating existing contact(" + id + ")...", model);
+//    	contactsRepository.updateContact(model);
+//    	return "update";
+//    }
+//
+//    // GET /orders/1/deleteConfirm
+//    public String deleteConfirm() {
+//    	log.debug("Confirming delete(" + id + ")...");
+//        return "deleteConfirm";
+//    }
 
     // DELETE /orders/1
     public HttpHeaders destroy() {
     	log.debug("Deleting contact(" + id + ")...");
     	int contactId = Integer.parseInt(id);
         contactsRepository.deleteContact(contactId);
-        return new DefaultHttpHeaders("success");
+        return new DefaultHttpHeaders("sucshowcess");
     }
 
 }
