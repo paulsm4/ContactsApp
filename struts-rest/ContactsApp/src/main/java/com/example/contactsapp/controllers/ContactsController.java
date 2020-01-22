@@ -26,66 +26,70 @@ import com.opensymphony.xwork2.ModelDriven;
  */
 public class ContactsController implements ModelDriven<Object> {
 
-	private static final Logger log = LogManager.getLogger(ContactsController.class);
-	private String id;
-	private Contact model = new Contact();
-	private Collection<Contact> list;
-	private ContactsRepository contactsRepository = new ContactsRepositoryImpl();
+    private static final Logger log = LogManager.getLogger(ContactsController.class);
+    private String id;
+    private Contact model = new Contact();
+    private Collection<Contact> list;
+    private ContactsRepository contactsRepository = new ContactsRepositoryImpl();
 
-	@Override
-	public Object getModel() {
-		return (list != null ? list : model);
-	}
-	
-	public String getId () {
-		return id;
-	}
-	
+    // Returns single "Contact" (model) or Collection<Contact> (list)
+    @Override
+    public Object getModel() {
+        return (list != null ? list : model);
+    }
+    
+    // "Id" managed by struts-rest-plugin runtime (extracted from URI)
+    public String getId () {
+        return id;
+    }
+    
     public void setId(String id) {
         if (id != null) {
-        	int contactId = Integer.parseInt(id);
+            int contactId = Integer.parseInt(id);
             this.model = contactsRepository.getContact(contactId);
         }
         this.id = id;
     }
-	
+    
+    // EX: GET http://localhost:8080/StrutsContactsApp/contacts.json
     public HttpHeaders index () {
-    	log.debug("Reading all contacts...");
+        log.debug("Reading all contacts...");
         list = contactsRepository.getContactsFetchAll();
         return new DefaultHttpHeaders("index").disableCaching();
     }
     
+    // EX: GET http://localhost:8080/StrutsContactsApp/contacts/1.json (fetch contactId=1)
     public HttpHeaders show() {
-    	log.debug("Reading contact(" + id + ")...");
-    	int contactId = Integer.parseInt(id);
+        log.debug("Reading contact(" + id + ")...");
+        int contactId = Integer.parseInt(id);
         model = (Contact)contactsRepository.getContact(contactId);
         return new DefaultHttpHeaders("show");
     }
     
-    // POST /orders
+    // EX: POST http://localhost:8080/StrutsContactsApp/contacts.json
     public HttpHeaders create() {
-    	log.debug("Creating new contact...", model);
-    	contactsRepository.addContact(model);
+        log.debug("Creating new contact...", model);
+        contactsRepository.addContact(model);
         return new DefaultHttpHeaders("show");
     }
 
-//    // PUT /orders/1
-//    public String update() {
-//    	log.debug("Updating existing contact(" + id + ")...", model);
-//    	contactsRepository.updateContact(model);
-//    	return "update";
-//    }
+    // EX: PUT http://localhost:8080/StrutsContactsApp/contacts/65.json (update contactId=65)
+    public String update() {
+        log.debug("Updating existing contact(" + id + ")...", model);
+        contactsRepository.updateContact(model);
+        return "update";
+    }
 //
 //    // GET /orders/1/deleteConfirm
 //    public String deleteConfirm() {
-//    	log.debug("Confirming delete(" + id + ")...");
+//      log.debug("Confirming delete(" + id + ")...");
 //        return "deleteConfirm";
 //    }
 
-    // DELETE /orders/1
+    // EX: DELETE http://localhost:8080/StrutsContactsApp/contacts/33.json (delete contactId=33)
     public HttpHeaders destroy() {
-    	log.debug("Deleting contact(" + id + ")...");
-    	int contactId = Integer.parseInt(id);
+        log.debug("Deleting contact(" + id + ")...");
+        int contactId = Integer.parseInt(id);
         contactsRepository.deleteContact(contactId);
         return new DefaultHttpHeaders("sucshowcess");
     }

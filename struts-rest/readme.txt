@@ -772,10 +772,445 @@ Persistence API  Hibernate/XML    JPA/Annotations          Hibernate/Annotations
 Database         Derby            H2                       H2 
 Struts API       Struts2/XML      struts2-rest-plugin/XML  struts2-rest-plugin/XML
 
-
 ===================================================================================================
-      
+* Review all {Controller API= struts2-rest-plugin, DB= H2, Persistence API= Hibernate with Annotations}
+1. pom.xml:
+   -------
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example.contactsapp</groupId>
+  <artifactId>ContactsApp</artifactId>
+  <packaging>war</packaging>
+  ...
+  <properties>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<struts2.version>2.5.22</struts2.version>
+	<hibernate.version>5.4.0.Final</hibernate.version>	
+  	<h2.version>1.4.197</h2.version>
+  	<log4j2.version>2.12.1</log4j2.version>
+  	<jackson.version>2.10.0</jackson.version>
+  	<java.version>1.8</java.version>    
+  	<maven-war-plugin.version>3.2.2</maven-war-plugin.version>
+  	<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+    ...
+  <dependencies>
+	<dependency>
+	    org.apache.struts, struts2-core
+        org.apache.struts, struts2-convention-plugin
+        org.apache.struts, struts2-rest-plugin
+        com.h2database, h2
+        org.hibernate, hibernate-core
+        org.apache.logging.log4j, log4j-core
+        com.fasterxml.jackson.core, jackson-databind
+  <build>
+    <finalName>StrutsContactsApp</finalName>
+    <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <source>${java.version}</source>
+            <target>${java.version}</target>
+            ...
+  NOTES:
+  - Need to specify maven-compiler-plugin and Java version, else defaults to JRE 1.5..
+    ... and Bad Things subsequently happen, because most dependent libraries built for Java 1.8 or higher
+  - Need Hibernate-core for persistence
+  - Struts2-rest-plugin needs Jackson-databind for JSON serialize/deserialize
 
+2. Models:
+   - Contact.java:
+     ------------
+@Entity
+@Table(name = "contacts")
+public class Contact {
+    private int contactId;
+    private String name;
+    private String email;
+    private String phone1;
+    private String phone2;
+    private String address1;
+    private String address2;
+    private String city;
+    private String state;
+    private String zip;
+    private Set<Note> notes = new HashSet<Note>(0);
+    ...
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(unique=true, nullable=false)
+    public int getContactId() { return contactId; }
+    public void setContactId(int contactId) { this.contactId = contactId; }
+    ...
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name="contactId")
+    @JsonBackReference
+    public Set<Note> getNotes() { return notes; }
+    public void setNotes(Set<Note> notes) { this.notes = notes; }
 
+   - Note.java:
+     ---------
+@Entity
+@Table(name = "notes")
+public class Note {
+    private int noteId;
+    private String text;
+    private Date date;
+    private Contact contact;
+    ...
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(unique=true, nullable=false)    
+    public int getNoteId() { return noteId; }
+    public void setNoteId(int noteId) { this.noteId = noteId; }
+    ...
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="contactId", nullable=true)
+    @JsonManagedReference
+    public Contact getContact() { return contact; }
+    public void setContact(Contact contact) { this.contact = contact; }
+
+   - NOTES:
+     - Need bidirectional mapping between parent "Contact" and child "Notes"...
+       ...but this causes Jackson to go into an infinite recursion during JSON deserialize
+     - SOLUTION:
+       - Contact.java:
+           @OneToMany() for "Notes", @JsonBackReference
+       - Note.java:
+           @ManyToOne() for "Contact", @JsonManagedReference
         
-  
+3. Persistence:
+   - ContactsRepository.java:
+     -----------------------
+public interface ContactsRepository {
+    public List<Contact> getContacts();
+    // Mitigate Hibernate "failed to lazily initialize a collection" runtime error
+    public List<Contact> getContactsFetchAll();
+    public Contact getContact(int id);
+    public int addContact(Contact contact);
+    public int deleteContact(int id);
+    public void updateContact(Contact contact);
+    ...
+
+   - ContactsRepositoryImpl.java:
+     ---------------------------
+public class ContactsRepositoryImpl implements ContactsRepository
+    public void shutdown () {
+        HibernateUtil.shutdown ();
+        ...    
+    @Override
+    public List<Contact> getContacts() {
+        //Note: Hibernate 5++ supports Java try-with-resource blocks
+        try (Session session = HibernateUtil.openSession()) {
+            // This will fetch all contacts... but "Notes" aren't accessible outside this session
+            List<Contact> contacts = session.createQuery("FROM Contact").list();
+            return contacts;
+            ...
+    @Override
+    public List<Contact> getContactsFetchAll() {
+        // Mitigate Hibernate "failed to lazily initialize a collection" runtime error
+        try (Session session = HibernateUtil.openSession()) {
+            List<Contact> contacts = session.createQuery("SELECT DISTINCT c FROM Contact c INNER JOIN FETCH c.notes").list();
+            return contacts;
+            ...
+    @Override
+    public Contact getContact(int id) {
+        try (Session session = HibernateUtil.openSession()) {
+            Contact contact = (Contact)session.get(Contact.class, id);
+            // Mitigate "failed to lazily initialize a collection" error
+            Hibernate.initialize(contact.getNotes());
+            return contact;
+    @Override
+    public Contact getContact(int id) {
+        try (Session session = HibernateUtil.openSession()) {
+            Contact contact = (Contact)session.get(Contact.class, id);
+            // Mitigate "failed to lazily initialize a collection" error
+            Hibernate.initialize(contact.getNotes());
+            return contact;
+    @Override
+    public int addContact(Contact contact) {
+        try (Session session = HibernateUtil.openSession()) {
+            Transaction tx = session.beginTransaction(); 
+            try {
+                // "save()" returns contactId immediately; persist() doesn't
+                int id = (int)session.save(contact);
+                
+                // Ensure every contact has at least one note (INNER JOIN FETCH)
+                Note initialNote = new Note("Creating new contact");
+                initialNote.setContact(contact);
+                contact.getNotes().add(initialNote);
+                session.save(initialNote);
+                for (Note n : contact.getNotes()) {
+                    n.setContact(contact);
+                    session.save(n);
+                }
+                tx.commit();
+                return id;
+            } catch (Exception e) {
+                tx.rollback();
+                throw e;
+                ...
+    @Override
+    public int deleteContact(int id) {
+        try (Session session = HibernateUtil.openSession()) {
+            Transaction tx = session.beginTransaction(); 
+            try {
+                // Use HQL (vs. SQL)
+                // OBSOLETE: query.setInteger(0, id) et al: deprecated since Hibernate 5.2
+                String hql = "delete from Contact where contactId  = ?1";
+                Query query = session.createQuery(hql)
+                        .setParameter(1,  id);
+                int result = query.executeUpdate(); 
+                tx.commit ();
+                return result;
+            } catch (Exception e) {
+                tx.rollback();
+                throw e;
+                ...
+    @Override
+    public void updateContact(Contact contact) {
+        try (Session session = HibernateUtil.openSession()) {
+            Transaction tx = session.beginTransaction(); 
+            try {
+                session.update(contact);
+                for (Note n : contact.getNotes()) {
+                    if (n.getContact() == null) {
+                        n.setContact(contact);
+                    }
+                    session.saveOrUpdate(n);
+                }
+                tx.commit ();
+            } catch (Exception e) {
+                tx.rollback();
+                throw e;
+                ...
+    public void shutdown () {
+        HibernateUtil.shutdown ();
+        ...
+
+    - HibernateUtil.java:
+     ------------------
+     public class HibernateUtil
+       private static SessionFactory buildSessionFactory()
+       public static SessionFactory getSessionFactory()
+       public static void shutdown()
+
+   - hibernate.cfg.xml:
+     -----------------
+ <?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+ 
+<hibernate-configuration>
+  <session-factory>
+    <!-- Derby Embedded config:
+    <property name="hibernate.connection.driver_class">org.apache.derby.jdbc.EmbeddedDriver</property>
+    <property name="hibernate.connection.username">app</property>
+    <property name="hibernate.connection.password"></property>
+    <property name="hibernate.connection.url">jdbc:derby:c:/temp/contactsdb</property>
+    <property name="hibernate.dialect">org.hibernate.dialect.DerbyTenSevenDialect</property>
+      -->
+      
+    <!-- H2/File config: -->
+    <property name="hibernate.connection.driver_class">org.h2.Driver</property>
+    <property name="hibernate.connection.url">jdbc:h2:file:///c:/temp/contactsdb</property>
+    <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
+    
+    <!-- validate|update|create|create-drop 
+    <property name="hibernate.hbm2ddl.auto">create</property>
+    -->
+    <property name="show_sql">true</property>
+    <property name="format_sql">true</property>
+    
+    <mapping class="com.example.contactsapp.models.Contact" />
+    <mapping class="com.example.contactsapp.models.Note" />
+
+  - NOTES:
+    - Much joy with Hibernate "ERROR: failed to lazily initialize a collection of role: com.example.contactsapp.models.Contact.notes, could not initialize proxy - no Session"
+      - Hibernate.initialize(): one alternative
+      - createQuery("SELECT DISTINCT ... INNER JOIN FETCH"): another alternative
+      - Access *all* data before exiting the session: an "ideal" alternative (when practical)
+      - fetch = FetchType.EAGER: a *POOR* alternative: to avoid if at all possible
+
+4. Controller (struts2-rest-plugin conventions):
+   --------------------------------------------
+public class ContactsController implements ModelDriven<Object> {
+    private static final Logger log = LogManager.getLogger(ContactsController.class);
+    private String id;
+    private Contact model = new Contact();
+    private Collection<Contact> list;
+    private ContactsRepository contactsRepository = new ContactsRepositoryImpl();
+
+    // Returns single "Contact" (model) or Collection<Contact> (list)
+    @Override
+    public Object getModel() {
+        return (list != null ? list : model);
+        ...
+        // "Id" managed by struts-rest-plugin runtime (extracted from URI)
+    public String getId () {
+        return id;
+        ...
+    public void setId(String id) {
+        if (id != null) {
+            int contactId = Integer.parseInt(id);
+            this.model = contactsRepository.getContact(contactId);
+        }
+        this.id = id;
+        ...
+    // EX: GET http://localhost:8080/StrutsContactsApp/contacts.json
+    public HttpHeaders index () {
+        log.debug("Reading all contacts...");
+        list = contactsRepository.getContactsFetchAll();
+        return new DefaultHttpHeaders("index").disableCaching();
+        ...
+    // EX: GET http://localhost:8080/StrutsContactsApp/contacts/1.json (fetch contactId=1)
+    public HttpHeaders show() {
+        log.debug("Reading contact(" + id + ")...");
+        int contactId = Integer.parseInt(id);
+        model = (Contact)contactsRepository.getContact(contactId);
+        return new DefaultHttpHeaders("show");
+        ...
+    // EX: POST http://localhost:8080/StrutsContactsApp/contacts.json
+    public HttpHeaders create() {
+        log.debug("Creating new contact...", model);
+        contactsRepository.addContact(model);
+        return new DefaultHttpHeaders("show");
+        ...
+    // EX: PUT http://localhost:8080/StrutsContactsApp/contacts/65.json (update contactId=65)
+    public String update() {
+        log.debug("Updating existing contact(" + id + ")...", model);
+        contactsRepository.updateContact(model);
+        return "update";
+        ...
+    // EX: DELETE http://localhost:8080/StrutsContactsApp/contacts/33.json (delete contactId=33)
+    public HttpHeaders destroy() {
+        log.debug("Deleting contact(" + id + ")...");
+        int contactId = Integer.parseInt(id);
+        contactsRepository.deleteContact(contactId);
+        return new DefaultHttpHeaders("sucshowcess");
+        ...
+
+   - struts.xml:
+     ----------
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+        "http://struts.apache.org/dtds/struts-2.5.dtd">
+<struts>
+    <constant name="struts.devMode" value="true" />
+    <constant name="struts.mapper.class" value="rest" />
+    <constant name="struts.convention.action.suffix" value="Controller"/>
+    <constant name="struts.convention.action.mapAllMatches" value="true"/>
+    <constant name="struts.convention.default.parent.package" value="rest-default"/>
+    <constant name="struts.convention.package.locators" value="controllers"/>
+
+   - NOTES:
+     - Struts-rest-plugin URL mappings (https://struts.apache.org/plugins/rest/):
+Default
+Method:   Description:                                                   Example:
+------    -----------                                                    -------
+index()   GET request with no id parameter.                              GET http://localhost:8080/StrutsContactsApp/contacts.json
+show()    GET request with an id parameter.                              GET http://localhost:8080/StrutsContactsApp/contacts/1.json
+create()  POST request with no id parameter and JSON/XML body.           POST http://localhost:8080/StrutsContactsApp/contacts.json
+update()  PUT request with an id parameter and JSON/XML body.            PUT http://localhost:8080/StrutsContactsApp/contacts/65.json
+destroy() DELETE request with an id parameter.                           DELETE http://localhost:8080/StrutsContactsApp/contacts/33.json
+edit()    GET  request with an id parameter and the edit view specified. 
+editNew() GET  request with no id parameter and the new view specified.
+     - Struts-rest-plugin runtime automatically manages:
+       - Parsing object ID from REST URI
+       - Serializing/deserializing input parameters and return objects
+       - By default, controller will implement interface com.opensymphony.xwork2.ModelDriven
+       - By default, shouldn't need to (i.e. *shouldn't*) declare any packages or actions in struts.xml
+         <= "Follow conventions", and struts2-rest-plugin will manage all the details...
+
+5. Web Service:
+   -----------
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns="http://java.sun.com/xml/ns/javaee" 
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
+  version="2.5">
+  <display-name>Struts Contacts App</display-name>
+  <filter>
+        <filter-name>struts2</filter-name>
+        <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+    </filter>
+  <filter-mapping>
+	<filter-name>struts2</filter-name>
+	<url-pattern>/*</url-pattern>
+    ...
+
+   - NOTES:
+     - FilterDispatcher is deprecated since Struts 2.1.3:
+        https://struts.apache.org/core-developers/web-xml.html
+     - Struts >= 2.1.3: If working with older versions, use:
+         org.apache.struts2.dispatcher.FilterDispatcher  // DEPRECATED
+     - Struts >= 2.5:
+         org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter 
+     - Current, non-legacy 2.x:
+         org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter
+
+6. Build and test:
+   - FIRST TIME:
+     - Edit hibernate.cfg.xml, uncomment "hibernate.hbm2ddl.auto, create" to auto-generate tables
+     - Eclipse > ContactsRepositoryImpl > Debug >
+       <= Set breakpoint *before* "delete record" test
+          This will a) create DB tables "Contacts" and "Notes", and b) populate tables with test data
+     -Comment out "hibernate.hbm2ddl.auto, create" in hibernate.cfg.xml
+
+   - Test in browser:
+     - Eclipse > Servers > Add/Remove > ContactsApp
+     - Eclipse > Servers > Tomcat > Debug||Start
+     - http://localhost:8080/StrutsContactsApp/contacts.json
+         <= Displays all records in JSON
+     - http://localhost:8080/StrutsContactsApp/contacts.xml
+         <= Displays all records in XML
+
+7. SoapUI:
+   - $PROJ/ContactsApp/struts-rest/soapui
+       StrutsContactsApp-soapui-project.xml
+       +-- Project (StrutsContactsApp)
+         +-- Service (http://localhost:8080)
+           +-- Resource (/StrutsContactsApp/contacts.json)
+             +-- Method (GetContacts)
+               +-- Request (GetContactsRequest)
+                     Method= GET, Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json
+                     Result= JSON (OK)
+                     <= Struts method= index()
+             +-- Method (AddContact)
+               +-- Request (AddContactRequest)
+                     Method= POST, Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts.json
+                     Body= {"name":"Donald Duck","email":"dd.abc.com"}
+                     Result= null
+                     <= Successfully added, new contactID= 65
+                        Struts method= create()
+           +-- Resource (contact 1: /StrutsContactsApp/contacts/1.json)
+             +-- Method (GetContact)
+               +-- Request (Request1)
+                     Method= GET, Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts/1.json
+                     Result= JSON (OK)
+                     Struts method= show()
+           +-- Resource (contact 65: /StrutsContactsApp/contacts/65.json)
+             +-- Method (GetContact)
+               +-- Request (Request1)
+                     Method= GET, Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts/65.json
+                     Result= JSON (OK)
+                     Struts method= show()
+             +-- Method (UpdateContact)
+               +-- Request (Request1)
+                     Method= PUT, Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts/65.json
+                     Body= {"city":"Anaheim"}
+                     Result= JSON (OK)
+                     Result= null (OK)
+                     Struts method= update()
+             +-- Method (Delete)
+               +-- Request (Request1)
+                     Method= DELETE, Endpoint= http://localhost:8080, Resource= /StrutsContactsApp/contacts/65.json
+                     Result= JSON (OK)
+                     Result= null (OK)
+                     Struts method=  destroy()
