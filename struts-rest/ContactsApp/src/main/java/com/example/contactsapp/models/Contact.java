@@ -2,7 +2,6 @@ package com.example.contactsapp.models;
 
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -19,7 +18,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "contacts")
@@ -97,7 +96,7 @@ public class Contact {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name="contactId")
-    @JsonBackReference
+    @JsonManagedReference
     public Set<Note> getNotes() { return notes; }
     public void setNotes(Set<Note> notes) { this.notes = notes; }
 }

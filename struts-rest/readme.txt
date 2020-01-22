@@ -1078,20 +1078,20 @@ public class ContactsController implements ModelDriven<Object> {
     public HttpHeaders create() {
         log.debug("Creating new contact...", model);
         contactsRepository.addContact(model);
-        return new DefaultHttpHeaders("show");
+        return new DefaultHttpHeaders("index");
         ...
     // EX: PUT http://localhost:8080/StrutsContactsApp/contacts/65.json (update contactId=65)
-    public String update() {
+    public HttpHeaders update() {
         log.debug("Updating existing contact(" + id + ")...", model);
         contactsRepository.updateContact(model);
-        return "update";
+         return new DefaultHttpHeaders("show");
         ...
     // EX: DELETE http://localhost:8080/StrutsContactsApp/contacts/33.json (delete contactId=33)
     public HttpHeaders destroy() {
         log.debug("Deleting contact(" + id + ")...");
         int contactId = Integer.parseInt(id);
         contactsRepository.deleteContact(contactId);
-        return new DefaultHttpHeaders("sucshowcess");
+        return new DefaultHttpHeaders("show");
         ...
 
    - struts.xml:
@@ -1120,6 +1120,7 @@ update()  PUT request with an id parameter and JSON/XML body.            PUT htt
 destroy() DELETE request with an id parameter.                           DELETE http://localhost:8080/StrutsContactsApp/contacts/33.json
 edit()    GET  request with an id parameter and the edit view specified. 
 editNew() GET  request with no id parameter and the new view specified.
+
      - Struts-rest-plugin runtime automatically manages:
        - Parsing object ID from REST URI
        - Serializing/deserializing input parameters and return objects

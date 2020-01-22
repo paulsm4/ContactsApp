@@ -56,7 +56,7 @@ public class Note {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="contactId", nullable=true)
-    @JsonManagedReference
+    @JsonBackReference
     public Contact getContact() { return contact; }
     public void setContact(Contact contact) { this.contact = contact; }
 }

@@ -63,21 +63,21 @@ public class ContactsController implements ModelDriven<Object> {
         log.debug("Reading contact(" + id + ")...");
         int contactId = Integer.parseInt(id);
         model = (Contact)contactsRepository.getContact(contactId);
-        return new DefaultHttpHeaders("show");
+        return new DefaultHttpHeaders("show").disableCaching();
     }
     
     // EX: POST http://localhost:8080/StrutsContactsApp/contacts.json
     public HttpHeaders create() {
         log.debug("Creating new contact...", model);
         contactsRepository.addContact(model);
-        return new DefaultHttpHeaders("show");
+        return new DefaultHttpHeaders("index").disableCaching();
     }
 
     // EX: PUT http://localhost:8080/StrutsContactsApp/contacts/65.json (update contactId=65)
-    public String update() {
+    public HttpHeaders update() {
         log.debug("Updating existing contact(" + id + ")...", model);
         contactsRepository.updateContact(model);
-        return "update";
+        return new DefaultHttpHeaders("show").disableCaching();
     }
 //
 //    // GET /orders/1/deleteConfirm
@@ -91,7 +91,7 @@ public class ContactsController implements ModelDriven<Object> {
         log.debug("Deleting contact(" + id + ")...");
         int contactId = Integer.parseInt(id);
         contactsRepository.deleteContact(contactId);
-        return new DefaultHttpHeaders("sucshowcess");
+        return new DefaultHttpHeaders("index").disableCaching();
     }
 
 }
