@@ -844,12 +844,12 @@ public class Contact {
     public int getContactId() { return contactId; }
     public void setContactId(int contactId) { this.contactId = contactId; }
     ...
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name="contactId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="contactId", nullable=true)
     @JsonBackReference
-    public Set<Note> getNotes() { return notes; }
-    public void setNotes(Set<Note> notes) { this.notes = notes; }
+    public Contact getContact() { return contact; }
+    public void setContact(Contact contact) { this.contact = contact; }
+    ...
 
    - Note.java:
      ---------
@@ -869,9 +869,10 @@ public class Note {
     ...
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="contactId", nullable=true)
-    @JsonManagedReference
+    @JsonBackReference
     public Contact getContact() { return contact; }
     public void setContact(Contact contact) { this.contact = contact; }
+    ...
 
    - NOTES:
      - Need bidirectional mapping between parent "Contact" and child "Notes"...
